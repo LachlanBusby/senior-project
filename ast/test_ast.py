@@ -58,19 +58,20 @@ if __name__== "__main__":
 					Call(
 						myfn1_token, 
 						Expressions([
-							Add(
+							BinOp(
 								x_token, 
-								UMinus(float5)),
+								Add(),
+								UnaryOp(UMinus(), float5)),
 							mystr,
-							Not(true_token)
+							UnaryOp(Not(), true_token)
 					])))
 	augAssign_y_to_x = AugAssign(
 							x_token, 
-							Plus(), 
+							Add(), 
 							y_token)
 	augAssign_1_to_x = AugAssign(
 							x_token, 
-							Plus(), 
+							Add(), 
 							int1)
 	else_stmts = Statements([
 						ExprStmt(
@@ -83,47 +84,40 @@ if __name__== "__main__":
 						])
 	elif_stmts = Statements([
 							If(
-								Compare(
+								CompareOp(
 									y_token, 
-									CompareOperators([
-										Eq()
-									]), 
-									Expressions([
-										int2
-									])),
+									Eq(),
+									int2),
 								Statements([
 									Break()
 								]),
 								else_stmts
 							)])
 	if_stmts = If(
-				Compare(
+				CompareOp(
 					y_token, 
-					CompareOperators([
-						Eq()
-					]), 
-					Expressions([
-						int1
-					])),
+					Eq(),
+					int1
+					),
 				Statements([
 					Continue()
 				]), 
 				elif_stmts)
 
 	while_loop = While(
-					Compare(int0, 
-							CompareOperators([
-								Leq(), Lt()
-							]), 
-							Expressions([
-								x_token, int15
-							])),
+					BoolOp(
+						And(), 
+						Expressions([
+							CompareOp(int0, Leq(), x_token),
+							CompareOp(x_token, Lt(), int15)
+						])),
 					Statements([
 						assign_to_y,
 						augAssign_y_to_x,
 						if_stmts,
 						augAssign_1_to_x
 					]))
+
 	main_def = FunctionDef(
 					main_token,
 					Arguments([]),

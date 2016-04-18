@@ -6,6 +6,8 @@ import cPickle
 import StringIO
 import sys
 
+PRINT_WITH_NEWLINE = True
+
 def serialize(node, filename=None):
 	"""
 	Serializes and saves an AST node and all its children. If 
@@ -52,8 +54,11 @@ def deserialize(serialized_node, isFile=False):
 	else:
 		return cPickle.loads(serialized_node)
 
-# Abstract base class for all AST node classes
 class AST(object):
+	"""
+	Abstract base class for all AST node classes. Implements 
+	automatic python printing for all nodes. 
+	"""
 	__metaclass__ = abc.ABCMeta
 
 	@abc.abstractmethod
@@ -66,39 +71,41 @@ class AST(object):
 							# This disables lineno and indent level in printed trees for readability
 							# Probably want at least lineno for parsing/codegen.
 							if attr != 'lineno' and attr != 'indent']
-		if len(attributes) > 0:
-			if indent != -1:
-				indentation = "\n" + "".join(["\t"]*(indent + 1))
+		if len(attributes) > 1:
+			if PRINT_WITH_NEWLINE:
+				indentation = indent + "".join([" "]*4)
 			else:
 				indentation = ""
-			string += "%s=%s" %(attributes[0][0], attributes[0][1].printnode(indent + 1 if indent != -1 else -1))
+			string += "%s%s=%s" %("\n" + indentation, attributes[0][0], attributes[0][1].printnode(indentation))
 			for child, value in attributes[1:]:
-				string += ", %s%s=%s" %(indentation, child, value.printnode(indent + 1 if indent != -1 else -1))
-
+				string += ", %s%s=%s" %("\n" + indentation, child, value.printnode(indentation))
+		elif len(attributes) == 1:
+				string += "%s%s=%s" %("", attributes[0][0], attributes[0][1].printnode(indent + "".join([" "]*8)))
 		string += ")"
 		return string
 
 	def __repr__(self):
-		return self.printnode(-1)
+		return self.printnode("")
 
-
-# Base sequence type for Expressions, CompareOperators, Statements and Arguments
-# Sequence functionality is in SequenceMixin in astutils.py
-# Supports most python functionality that built-in lists have: for-loop iteration, 
-# subscripting, slices, len, get, insert, append etc.
-# Note: This is an abstract class, must subclass to instantiate. 
 class NodeSequence(AST, SequenceMixin):
+	"""
+	Base sequence type for Expressions, CompareOperators, Statements and Arguments
+	Sequence functionality is in SequenceMixin in astutils.py
+	Supports most python functionality that built-in lists have: for-loop iteration, 
+	subscripting, slices, len, get, insert, append etc.
+	Note: This is an abstract class, must subclass to instantiate.
+	"""
 	def printnode(self, indent):
 		string = "%s([" %self.__class__.__name__ 
 
 		if len(self._list) > 0:
 			if indent != -1:
-				indentation = "\n" + "".join(["\t"]*(indent + 1))
+				indentation = indent + "".join([" "]*4)
 			else:
-				indentation = ""			
-			string += "%s%s" %(indentation, self._list[0].printnode(indent + 1 if indent != -1 else -1))
-			for member in self._list:
-				string += ", %s%s" %(indentation, member.printnode(indent + 1 if indent != -1 else -1))
+				indentation = ""
+			string += "%s%s" %("\n" + indentation, self._list[0].printnode(indentation))
+			for member in self._list[1:]:
+				string += ", %s%s" %("\n" + indentation, member.printnode(indentation))
 
 		string += "])"
 		return string
@@ -107,296 +114,298 @@ class NodeSequence(AST, SequenceMixin):
 	def __init__(self, concreteType, initList):
 		SequenceMixin.__init__(self, concreteType, initList)
 
-# Base node for all Expression types
-# Note, this is an abstract base class (doesn't implement __init__)
-# only subclass should be explicitly instantiated
 class Expression(AST):
+	"""	
+	Base node for all Expression types
+	Note, this is an abstract base class (doesn't implement __init__)	
+	only subclasses should be explicitly instantiated
+	"""
 	pass
 
-# Sequence type for list of expressions
+class Statement(AST):
+	""" Base class for all statement nodes """
+	pass
+
+class Operator(AST):
+	""" Base Operator class. Do not instantiate """
+	pass
+class BooleanOperator(Operator):
+	""" Base class for 'And' and 'Or' operators """
+	pass
+class BinaryOperator(Operator):
+	""" Base class for Add, Sub, Mult, Div and Mod """
+	pass
+class UnaryOperator(Operator):
+	""" Base class for UPlus, UMinus, Not """
+	pass
+class CompareOperator(Operator):
+	""" Base class for all comparators """
+	pass
+
 class Expressions(NodeSequence):
+	""" Sequence type for list of expressions """
 	def __init__(self, exprList):
 		NodeSequence.__init__(self, Expression, exprList)
 
-
-# Base class for all statement nodes
-class Statement(AST):
-	pass
-
-# Node for a list of statement nodes
 class Statements(NodeSequence):
+	""" Sequence type for list of statements """
 	def __init__(self, stmtList):
 		NodeSequence.__init__(self, Statement, stmtList)
 
-
-# Root node for a parse, may change 
 class Program(AST):
+	""" Root node for a parse, may change """
 	@accepts(AST, Statements)
 	def __init__(self, statements):
 		self.statements = statements
 
-# Base class for constant expressions
 class Constant(Expression):
+	""" Base class for constant expressions """
 	def printnode(self, indent):
 		return self.__class__.__name__ + "('" + str(self.value) + "')"
 
-# Node for names 
 class Name(Constant):
+	"""
+	Node for names 
+	"""
 	@accepts(Expression, str)
 	def __init__(self, token):
 		self.value = token
 
-# Float Literal
-class IntLiteral(Constant):
-	@accepts(Expression, int)
-	def __init__(self, value):
-		self.value = value
-
-class FloatLiteral(Constant):
-	@accepts(Expression, float)
-	def __init__(self, value):
-		self.value = value
-
-# String Literal
-class StringLiteral(Constant):
-	@accepts(Expression, str)
-	def __init__(self, value):
-		self.value = value
-
-# Boolean literal, True or False
-class BooleanLiteral(Constant):
-	@accepts(Expression, bool)
-	def __init__(self, value):
-		self.value = value
-
-# Node for argument declerations in Function definitions
-# Note: This is not necessary if all we want to store with each
-#		argument is the name. Otherwise, we can simply make Arguments
-#		a list of names
 class Argument(AST):
+	"""
+	Node for argument declerations in Function definitions
+	Note: This is not necessary if all we want to store with each
+		argument is the name. Otherwise, we can simply make Arguments
+		a list of names
+	"""
 	@accepts(AST, Name)
 	def __init__(self, name):
 		self.name = name
 
-# Node for a list of argument nodes
 class Arguments(NodeSequence):
+	""" Sequence node for a list of argument nodes """
 	def __init__(self, argslist=None):
 		NodeSequence.__init__(self, Argument, argslist)
 
-# Node for Function Definition statements
+# 
 class FunctionDef(Statement):
+	""" Node for Function Definition statements """
 	@accepts(Statement, Name, Arguments, Statements)
 	def __init__(self, name, arguments, body):
 		self.name = name
 		self.args = arguments
 		self.body = body
 
-# Node for an assignment statement. 
-# Does not support:
-#		arbitrary expressions on the lhs.
-# 		multiple assignment, e.g. a, b = 5, 10
-# Node would have to be changed to support these
 class Assign(Statement):
+	"""
+	Node for an assignment statement. 
+	Does not support:
+		arbitrary expressions on the lhs.
+		multiple assignment, e.g. a, b = 5, 10
+	Node would have to be changed to support these
+	"""
 	@accepts(Statement, Name, Expression)
 	def __init__(self, target, expr):
 		self.target = target
 		self.expr = expr
 
-# Binary operand base class
-class BinaryOp(AST):
-	def __init__(self):
-		pass
-
-# Binary operands
-class Plus(BinaryOp):
-	pass
-class Minus(BinaryOp):
-	pass
-class Multiply(BinaryOp):
-	pass
-class Divnamee(BinaryOp):
-	pass
-class Modulo(BinaryOp):
-	pass
-
-# Augmented Assignment -> x += 5
 class AugAssign(Statement):
-	@accepts(Statement, Name, BinaryOp, Expression)
+	""" Augmented Assignment -> x += 5 """
+	@accepts(Statement, Name, BinaryOperator, Expression)
 	def __init__(self, target, op, expr):
 		self.target = target
 		self.op = op
 		self.expr = expr
 
-# For statement in python
 class Foreach(Statement):
+	""" For statement in python """
 	@accepts(Statement, Expression, Expression, Expressions)
 	def __init__(self, target, iterator, body):
 		self.target = target
 		self.iter = iterator
 		self.body = body
 
-# While Loop node.
-# does not support the Python nameiom:
-# while x is True:
-#	do something
-# else:
-# 	execute if no break occured in loop body
 class While(Statement):
+	"""
+	While Loop node.
+	does not support the Python idiom:
+	while x is True:
+		do something
+	else:
+		execute if no break occured in loop body
+	"""
 	@accepts(Statement, Expression, Statements)
 	def __init__(self, test, body):
 		self.test = test
 		self.body = body
 
-# If statement. Else or elif statements go into the orelse
-# field. If no else or elif are present, orelse is an empty 
-# Statements object. 
 class If(Statement):
+	"""
+	If statement. Else or elif statements go into the orelse
+	field. If no else or elif are present, orelse is an empty 
+	Statements object. 
+	"""
 	@accepts(Statement, Expression, Statements, Statements)
 	def __init__(self, test, body, orelse):
 		self.test = test
 		self.body = body
 		self.orelse = orelse
 
-# Node for a singleton expression, such as "fn(x)"
-# or "print x"
 class ExprStmt(Statement):
+	"""
+	Node for a singleton expression, such as "fn(x)"
+	or "print x"
+	"""
 	@accepts(Statement, Expression)
 	def __init__(self, expr):
 		self.expr = expr
 
-# Break statement
 class Break(Statement):
-	def __init__(self):
-		pass
-# Continue statement
-class Continue(Statement):
+	""" Break statement """
 	def __init__(self):
 		pass
 
-# Return statement
+class Continue(Statement):
+	""" Continue statement """
+	def __init__(self):
+		pass
+
 class Return(Statement):
+	""" Return statement """
 	@accepts(Statement, Expression)
 	def __init__(self, expr):
 		self.expr = expr
 
-# Node for a function call
-# Note: does not support keyword-arguments like -> sort(cmp=myfn)
-#		or sequence unpacking.	
 class Call(Expression):
+	"""
+	Node for a function call
+	Note: 	does not support keyword-arguments like -> sort(cmp=myfn)
+			or sequence unpacking.	
+	"""
 	@accepts(Expression, Name, Expressions)
 	def __init__(self, function_name, parameters):
 		self.name = function_name
 		self.params = parameters
 
-
-# Node for a Boolean and expression. Collapse "x and y and z" into 1 
-# boolean operation with 3 expressions
-class And(Expression):
-	@accepts(Expression, Expressions)
-	def __init__(self, expressions):
+class BoolOp(Expression):
+	""" Boolean Operation """
+	@accepts(Expression, BooleanOperator, Expressions)
+	def __init__(self, operator, expressions):
+		self.op = operator
 		self.exprs = expressions
 
-# Node for a Boolean or expression.
-class Or(Expression):
-	@accepts(Expression, Expressions)
-	def __init__(self, expressions):
-		self.exprs = expressions
-
-# Node for an addition (+) operation using
-class Add(Expression):
-	@accepts(Expression, Expression, Expression)
-	def __init__(self, left_expr, right_expr):
+class BinOp(Expression):
+	""" Binary Operation """
+	@accepts(Expression, Expression, BinaryOperator, Expression)
+	def __init__(self, left_expr, operator, right_expr):
 		self.left = left_expr
+		self.op = operator
 		self.right = right_expr
 
-# Node for a subtraction (-) operation using
-class Sub(Expression):
-	@accepts(Expression, Expression, Expression)
-	def __init__(self, left_expr, right_expr):
+class UnaryOp(Expression):
+	""" Unary Operation """
+	@accepts(Expression, UnaryOperator, Expression)
+	def __init__(self, operator, right_expr):
+		self.op = operator
+		self.right = right_expr	
+
+class CompareOp(Expression):
+	""" Compare Operation """
+	@accepts(Expression, Expression, CompareOperator, Expression)
+	def __init__(self, left_expr, operator, right_expr):
 		self.left = left_expr
+		self.op = operator
 		self.right = right_expr
 
-# Node for a multiplication (*) operation 
-class Mult(Expression):
-	@accepts(Expression, Expression, Expression)
-	def __init__(self, left_expr, right_expr):
-		self.left = left_expr
-		self.right = right_expr
+class IntLiteral(Constant):
+	""" Integer Literal """
+	@accepts(Expression, int)
+	def __init__(self, value):
+		self.value = value
 
-# Node for a division (/) operation
-class Div(Expression):
-	@accepts(Expression, Expression, Expression)
-	def __init__(self, left_expr, right_expr):
-		self.left = left_expr
-		self.right = right_expr
+class FloatLiteral(Constant):
+	""" Float Literal """
+	@accepts(Expression, float)
+	def __init__(self, value):
+		self.value = value
 
-# Node for a modulo (%) operation
-class Mod(Expression):
-	@accepts(Expression, Expression, Expression)
-	def __init__(self, left_expr, right_expr):
-		self.left = left_expr
-		self.right = right_expr
+class StringLiteral(Constant):
+	""" String Literal """
+	@accepts(Expression, str)
+	def __init__(self, value):
+		self.value = value
 
-### TODO: Add binary bitwise operations
+class BooleanLiteral(Constant):
+	""" Boolean literal, True or False """
+	@accepts(Expression, bool)
+	def __init__(self, value):
+		self.value = value
 
-# Node for boolean unary 'not' operand
-class Not(Expression):
-	@accepts(Expression, Expression)
-	def __init__(self, expression):
-		self.expr = expression
-
-# Node for unary minus, i.e. arithmetic negation -> 6 + (-5)
-class UMinus(Expression):
-	@accepts(Expression, Expression)
-	def __init__(self, expression):
-		self.expr = expression
-
-# Node for unary plus, does nothing, but should be parsed for
-# completeness
-class UPlus(Expression):
-	@accepts(Expression, Expression)
-	def __init__(self, expression):
-		self.expr = expression
-
-class CompareOp(AST):
+# Boolean Operators
+class And(BooleanOperator):
+	def __init__(self):
+		pass
+class Or(BooleanOperator):
 	def __init__(self):
 		pass
 
-class Eq(CompareOp):
-	pass
-class Lt(CompareOp):
-	pass
-class Gt(CompareOp):
-	pass
-class Leq(CompareOp):
-	pass
-class Geq(CompareOp):
-	pass
-class Is(CompareOp):
-	pass
-class isNot(CompareOp):
-	pass
-class In(CompareOp):
-	pass
-class NotIn(CompareOp):
-	pass
+# Binary Operators
+class Add(BinaryOperator):
+	def __init__(self):
+		pass
+class Sub(BinaryOperator):
+	def __init__(self):
+		pass
+class Mult(BinaryOperator):
+	def __init__(self):
+		pass
+class Div(BinaryOperator):
+	def __init__(self):
+		pass
+class Mod(BinaryOperator):
+	def __init__(self):
+		pass
 
-class CompareOperators(NodeSequence):
-	def __init__(self, opList):
-		NodeSequence.__init__(self, CompareOp, opList)
+# Unary Operators
+class UPlus(UnaryOperator):
+	def __init__(self):
+		pass
+class UMinus(UnaryOperator):
+	def __init__(self):
+		pass
+class Not(UnaryOperator):
+	def __init__(self):
+		pass
 
-# Apparently 2 < a <= b == 20 is valname Python code...
-# Node for Comparator Operations. @leftmost_expr is the
-# first expression, @operators is the list of comparison 
-# operators from left to right and expressions is the list of
-# expressions to be compared starting at the second expression
-# TODO: discuss if this is the easiest way to parse this
-class Compare(Expression):
-	@accepts(Expression, Expression, CompareOperators, Expressions)
-	def __init__(self, leftmost_expr, operators, expressions):
-		self.left = leftmost_expr
-		self.ops = operators
-		self.exprs = expressions
+# Compare Operators
+class Eq(CompareOperator):
+	def __init__(self):
+		pass
+class Lt(CompareOperator):
+	def __init__(self):
+		pass
+class Gt(CompareOperator):
+	def __init__(self):
+		pass
+class Leq(CompareOperator):
+	def __init__(self):
+		pass
+class Geq(CompareOperator):
+	def __init__(self):
+		pass
+class Is(CompareOperator):
+	def __init__(self):
+		pass
+class isNot(CompareOperator):
+	def __init__(self):
+		pass
+class In(CompareOperator):
+	def __init__(self):
+		pass
+class NotIn(CompareOperator):
+	def __init__(self):
+		pass
+
 
 '''
 TODO: 
@@ -406,58 +415,4 @@ TODO:
 	--List, set, dict access, lookup etc.
 
 '''
-
-'''
-TODO: 
-	Discuss choices in representing boolean, binary, unary and compare operations.
-
-	Right now, this is what it looks like: 
-	'x + y' is parsed into ===> "AddNode(left=Name('x'), right=Name('y')])"
-	'x - y' is parsed into ===> "SubNode(left=Name('x'), right=Name('y')])"
-
-	It could also be parsed like this:
-	'x + y' ===> "BinOpNode(left=Name('x'), Op=Add(), right=Name('y')])"
-	'x - y' ===> "BinOpNode(left=Name('x'), Op=Sub(), right=Name('y')])"
-
-	The second is what the official python parser does. I thought the first might be 
-	easier to parse.
-
-	Boolean operations in python support chaining, so right now it looks like this:
-	'x and y and z' ===> "AndNode(exprs=Expressions([Name('x'), Name('y'), Name('z')]))"
-	'x or y or z' ===> "OrNode(exprs=Expressions([Name('x'), Name('y'), Name('z')]))"
-
-	Real python doesn't parse like that, it does: BoolOp(Operator="And", Expressions=[x, y, z]).
-
-	We could also split it up the chain into a tree like AndNode(Expr1, AndNode(Expr2, Expr3)), or not.
-
-	I think python grammar looks like this to simplify the parsing algorithm.
-
-	Comparison is the biggest problem. Python supports arbitrary chained expressions 
-	like 5 < x < 10. This form is very psuedocode like, so we should probably support it. Formally,
-	"5 < x < 10" means "5 < x" and "x < 10"
-
-	There could be different ways of representing such a statement. I implemented what python does,
-	because I figured we should talk about this. This is how python handles chained comparators:
-
-	"5 < x < 10" ===> Compare(left=int(5), ops=[Lt(), Lt()], comparators=[Name("x"), int(10)])
-
-	Lt() meaning less than. This is awkward, but I don't know what the easiest way to parse such an
-	expression would be, so we should definitely discuss this.
-'''
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
