@@ -1,0 +1,69 @@
+Lollipop 
+
+/* 
+ * This comment describes the syntax of this document, a text file that specifies 
+ * the Lollipop syntax expansion.
+ * 
+ * non_term = TerminalClass(non_term_type <space> name_of_constructor_param) 
+ * 			| non_term
+ * 
+ * If a name starts with a smallcase letter its a non-term, otherwise its a terminal.
+ * There might be errors. See https://docs.python.org/2/library/ast.html for full python
+ * CFG. 
+ * 
+ * I made this at 6:30am. Hit me up if you have issues.
+ */
+Program
+{
+
+	args_list = arg args_list | arg
+
+	arg = Argument(Name token)
+
+	stmt_list = stmt stmt_list | stmt
+
+	expr_list = expr expr_list | expr
+
+	prgrm = Program(stmt_list statements)
+
+			//Treat Name as a non-terminal, but really it's the terminal Name()
+			//Idk how else to write it
+	stmt = FunctionDef(Name name, args_list args, stmt_list body) 
+	      | Return(expr value)
+
+	      | Assign(expr target, expr value)
+	      | AugAssign(expr target, operator op, expr value)
+
+	      | Foreach(expr target, expr iter, stmt_list body)
+	      | While(expr test, stmt_list body)
+	      | If(expr test, stmt_list body, stmt_list orelse)
+
+	      | ExprStmt(expr expr_val)
+	      | Break 
+	      | Continue
+
+	expr = BoolOp(boolop op, expr_list values)
+	     | BinOp(expr left, binop op, expr right)
+	     | UnaryOp(unaryop op, expr operand)
+
+	     | CompareOp(expr left, cmpop op, expr right)
+	     | Call(Name func_name, list_expr args)
+	    
+	    	//int, float, string and bool are considered native types, they need to be regexed.
+	     | IntLiteral(int n) 
+	     | FloatLiteral(float f)
+	     | StringLiteral(string s)
+	     | BooleanLiteral(bool b)
+	     | Name(string token)
+
+
+	boolop = And | Or 
+
+	binoptr = Add | Sub | Mult | Div | Mod 
+
+	unaryop = Not | UAdd | USub
+
+	cmpop = Eq | NotEq | Lt | LtE | Gt | GtE | Is | IsNot | In | NotIn
+
+	
+}
