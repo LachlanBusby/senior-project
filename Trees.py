@@ -69,7 +69,7 @@ class Trees:
 			tree = self.xOverXRemover.transformTree(tree)
 			return tree
 
-	class TreeReader:
+	# class TreeReader:
 	# SKIPPING THIS CLASS FOR NOW
 
 	# SKIPPING EVERYTHING AFTER TREE_READER CLASS EXCEPT SPLICE_NODES

@@ -16,12 +16,12 @@ class TreeAnnotations:
 	def binarizeTree(self, tree):
 		label = tree.getLabel()
 		if tree.isLeaf():
-			return new Tree(label)
+			return Tree(label)
 		if len(tree.getChildren()) == 1:
-			return new Tree(label, [self.binarizeTree(tree.getChildren()[0])])
+			return Tree(label, [self.binarizeTree(tree.getChildren()[0])])
 		intermediateLabel = "@" + label + "->"
 		intermediateTree = self.binarizeTreeHelper(tree, 0, intermediateLabel)
-		return new Tree(label, intermediateTree.getChildren())
+		return Tree(label, intermediateTree.getChildren())
 
 	def binarizeTreeHelper(self, tree, numChildrenGenerated, intermediateLabel):
 		leftTree = tree.getChildren()[numChildrenGenerated]
@@ -30,7 +30,7 @@ class TreeAnnotations:
 		if numChildrenGenerated < len(tree.getChildren()) - 1:
 			rightTree = self.binarizeTreeHelper(tree, numChildrenGenerated + 1, intermediateLabel + "_" + leftTree.getLabel())
 			children.append(rightTree)
-		return new Tree(intermediateLabel, children)
+		return Tree(intermediateLabel, children)
 
 	def unAnnotateTree(self, annotatedTree):
 		debinarizedTree = Trees.spliceNodes(annotatedTree, lambda s: s.startswith('@'))
