@@ -1,4 +1,10 @@
 import sys
+import defaultdict
+import nltk
+
+"""
+BASED ON CS224N - Grammar class (in Java)
+"""
 
 class Grammar():
 
@@ -52,9 +58,6 @@ class Grammar():
 			return hash( (self.parent, self.leftChild, self.rightChild) )
 
 
-
-
-
 	class UnaryRule():
 
 		def __init__(self, parent, child):
@@ -94,5 +97,8 @@ class Grammar():
 		def __hash__(self):
 			return hash( (parent, child) )
 
+
+""" USE PROBABILISTIC PRODUCTION CLASS FROM NLTK """
+""" PCFG CLASS """
 
 
