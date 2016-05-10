@@ -12,11 +12,6 @@ Colon -> ':'
 Assign_Op -> '='
 Bin_Op -> '+' | '-' | '*' | '/' | '%'
 
-Return_Keyword -> 'return'
-For_Keyword -> 'for'
-Increment_Keyword -> 'to'
-Decrement_Keyword -> 'downto'
-Change_Keyword -> 'by'
 
 /* Trainable Pre-Terminals
  * ------------------------
@@ -24,6 +19,20 @@ Change_Keyword -> 'by'
  */
 Name -> any string
 Func_Name -> any string (formatting requirements)
+Return_Keyword -> 'return'
+For_Keyword -> 'for'
+For_To_Keyword -> 'to'
+For_Downto_Keyword -> 'downto'
+For_By_Keyword -> 'by'
+While_Keyword -> 'while'
+If_Keyword -> 'if'
+Else_Keyword -> 'else'
+Break_Keyword -> 'break'
+Continue_Keyword -> 'continue'
+Int_Literal -> any whole number
+Float_Literal -> any decimal
+String_Literal -> any string
+Bool_Literal -> 'true' | 'false'
 
 /* Program Root
  * -----------------
@@ -45,7 +54,6 @@ STMT -> FUNC_DEF
 		| FOREACH
 		| WHILE
 		| IF
-		| EXPR_STMT
 		| BREAK
 		| CONTINUE
 
@@ -102,12 +110,15 @@ AUG_ASSIGN -> ASSIGN_TARGET Bin_Op Assign_Op ASSIGN_VALUE
  *		identify type of condition based on increment/decrement
  *		if for condition isn't ASSIGN, then compare ASSIGN_TARGET of FOR_START to value
  */
- FOR -> FOR_STANDARD | FOR_STANDARD FOR_CHANGE
- FOR_STANDARD -> For_Keyword FOR_START FOR_OPERATION FOR_CONDITION
- FOR_START -> STMT
- FOR_OPERATION -> Increment_Keyword | Decrement_Keyword
- FOR_CONDITION -> STMT
- FOR_CHANGE -> Change_Keyword STMT
+ FOR -> For_Keyword FOR_SIMPLE STMT_LIST
+ 		| For_Keyword FOR_SIMPLE For_By_Keyword FOR_INCREMENT STMT_LIST
+ FOR_STANDARD -> FOR_TARGET Assign_Op FOR_START FOR_CONDITION FOR_END
+ FOR_TARGET -> Name
+ FOR_START -> EXPR
+ FOR_CONDITION -> For_To_Keyword 
+ 				  | For_Downto_Keyword
+ FOR_END -> EXPR
+
 
  /* Foreach Statement
   * ------------------
@@ -116,20 +127,49 @@ AUG_ASSIGN -> ASSIGN_TARGET Bin_Op Assign_Op ASSIGN_VALUE
  /* While Statement
   * ------------------
   */
+  WHILE -> While_Keyword EXPR STMT_LIST
 
  /* If Statement
   * ------------------
   */
-
- /* ExprStmt Statement
-  * ------------------
-  */
+  IF -> If_Keyword EXPR STMT_LIST 
+  		| If_Keyword EXPR STMT_LIST ELSE_IF
+  ELSE_IF -> ELSE 
+  			 | Else_Keyword IF
+  			 | Else_Keyword EXPR STMT_LIST 
+  			 | Else_Keyword EXPR STMT_LIST ELSE_IF
+  ELSE -> Else_Keyword STMT_LIST
 
  /* Break Statement
   * ------------------
   */
+  BREAK -> Break_Keyword
 
  /* Continue Statement
   * ------------------
   */
+  CONTINUE -> Continue_Keyword
+
+
+  // Expressions
+
+  EXPR -> BOOL_EXPR 
+  		  | BIN_EXPR 
+  		  | UNARY_EXPR 
+  		  | COMP_EXPR
+  		  | CALL 
+  		  | Int_Literal 
+  		  | Float_Literal 
+  		  | String_Literal 
+  		  | Bool_Literal 
+  		  | Name
+
+  LEFT_EXPR -> EXPR
+  RIGHT_EXPR -> EXPR
+  BOOL_EXPR -> LEFT_EXPR Bool_Op RIGHT_EXPR
+  BIN_EXPR -> LEFT_EXPR Bin_Op RIGHT_EXPR
+  UNARY_EXPR -> Unary_Op EXPR
+  COMP_EXPR -> LEFT_EXPR Comp_Op RIGHT_EXPR
+  CALL -> Func_Name FUNC_ARG_LIST
+
 
