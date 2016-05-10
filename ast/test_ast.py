@@ -1,5 +1,5 @@
-from pseudoast import *
-
+from lollipop_ast import *
+import python_codegen as codegen
 """
 Creates an AST for the following python program:
 def myfn1(arg1, arg2, arg3):
@@ -14,6 +14,7 @@ def main():
 		y = myfn1(x + -5.0, "mystr", not True)
 		x += y
 		if y == 1:
+			x *= y + 15 - x/2
 			continue
 		elif y == 2:
 			break
@@ -21,6 +22,7 @@ def main():
 			myfn2(x)
 
 		x += 1
+main()
 """
 
 
@@ -99,7 +101,19 @@ if __name__== "__main__":
 					Eq(),
 					int1
 					),
-				Statements([
+				Statements([AugAssign(
+								x_token, 
+								Mult(), 
+								BinOp(
+									y_token, 
+									Add(), 
+									BinOp(
+										int15, 
+										Sub(), 
+										BinOp(
+											x_token, 
+											Div(), 
+											int2)))),
 					Continue()
 				]), 
 				elif_stmts)
@@ -128,10 +142,21 @@ if __name__== "__main__":
 						while_loop])
 					)
 
-	program_node = Program(Statements([myfn1, myfn2, main_def]))
+	program_node = Program(
+					Statements([
+						myfn1, 
+						myfn2, 
+						main_def, 
+						ExprStmt(
+							Call(
+								main_token, 
+								Expressions([])
+						))
+					]))
 	serialized = serialize(program_node)
 	deserialized = deserialize(serialized)
-	print "Program node using repr:\n%s" %repr(program_node)
+	# print "Program node using repr:\n%s" %repr(program_node)
+	codegen.emit_pycode(program_node, "")
 
 
 

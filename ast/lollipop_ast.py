@@ -63,6 +63,8 @@ class AST(object):
 
 	@abc.abstractmethod
 	def __init__(self):
+		self.lineno = None
+		self.indent = None
 		pass
 
 	def printnode(self, indent):
@@ -217,6 +219,16 @@ class AugAssign(Statement):
 		self.op = op
 		self.expr = expr
 
+class ForRange(Statement):
+	""" Range-based, C-style loop """
+	@accepts(Statement, Expression, Expression, Expression, Expression, Statements)
+	def __init__(self, target, start, end, increment, body):
+		self.target = target
+		self.start = start
+		self.end = end
+		self.inc = increment
+		self.body = body
+
 class Foreach(Statement):
 	""" For statement in python """
 	@accepts(Statement, Expression, Expression, Expressions)
@@ -286,6 +298,38 @@ class Call(Expression):
 	def __init__(self, function_name, parameters):
 		self.name = function_name
 		self.params = parameters
+
+class DynamicCall(Expression):
+	"""
+	Node for a function call like x.foo(arg)
+	Ideally supports stuff like bar().foo() where bar() returns an instance
+	with a class method foo(). But instance can be limited to object Name if
+	needed.
+	Note: 	does not support keyword-arguments like -> sort(cmp=myfn)
+			or sequence unpacking.	
+	"""
+	@accepts(Expression, Expression, Name, Expressions)
+	def __init__(self, instance, function_name, parameters):
+		self.obj = instance
+		self.fn_name = function_name
+		self.params = parameters
+
+class Attribute(Expression):
+	""" 
+	Access object's data attribute such as:
+	foo.binky
+	bar(foo).winky
+	"""
+	@accepts(Expression, Expression, Name)
+	def __init__(self, instance, attr):
+		self.obj = instance
+		self.attr = attr
+
+class NilExpression(Expression):
+	""" Nil expression """
+	@accepts(Expression)
+	def __init__(self):
+		pass
 
 class BoolOp(Expression):
 	""" Boolean Operation """
@@ -396,7 +440,7 @@ class Geq(CompareOperator):
 class Is(CompareOperator):
 	def __init__(self):
 		pass
-class isNot(CompareOperator):
+class IsNot(CompareOperator):
 	def __init__(self):
 		pass
 class In(CompareOperator):
