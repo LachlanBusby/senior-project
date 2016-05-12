@@ -6,9 +6,11 @@ class Tree:
 	Original Java Code by Dan Klein.'''
 
 	# The leaf constructor
-	def __init__(self, label, children=[]):
+	def __init__(self, label, indent, children=[], parent=None):
 		self.label = label
+		self.indent = indent
 		self.children = children
+		self.parent = parent
 
 	def getChildren(self):
 		return self.children
@@ -21,6 +23,18 @@ class Tree:
 
 	def setLabel(self, label):
 		self.label = label
+
+	def getParent(self):
+		return self.parent
+
+	def setParent(self, parent):
+		self.parent = parent
+
+	def getIndent(self):
+		return self.indent
+
+	def setIndent(self, indent):
+		self.indent = indent
 
 	# Returns true at the word(leaf) level of a tree
 	def isLeaf(self):

@@ -1,0 +1,175 @@
+""" Defining the CFG for the Parse Tree """
+
+/* Constant Pre-Terminals
+ * -----------------------
+ * Hard-coded to only recognize the specified strings.
+ */
+Comma -> ','
+Open_Paren -> '('
+Close_Paren -> ')'
+Colon -> ':'
+
+Assign_Op -> '='
+Bin_Op -> '+' | '-' | '*' | '/' | '%'
+
+
+/* Trainable Pre-Terminals
+ * ------------------------
+ * Potential values for these will be defined during training.
+ */
+Name -> any string
+Func_Name -> any string (formatting requirements)
+Return_Keyword -> 'return'
+For_Keyword -> 'for'
+For_To_Keyword -> 'to'
+For_Downto_Keyword -> 'downto'
+For_By_Keyword -> 'by'
+While_Keyword -> 'while'
+If_Keyword -> 'if'
+Else_Keyword -> 'else'
+Break_Keyword -> 'break'
+Continue_Keyword -> 'continue'
+Int_Literal -> any whole number
+Float_Literal -> any decimal
+String_Literal -> any string
+Bool_Literal -> 'true' | 'false'
+
+/* Program Root
+ * -----------------
+ * This will always be the top level node for any parse tree.
+ */
+PROGRAM -> STMT_LIST
+
+
+// Statements
+
+STMT_LIST -> STMT STMT_LIST
+		     | STMT
+
+STMT -> FUNC_DEF 
+		| RETURN
+		| ASSIGN
+		| AUG_ASSIGN
+		| FOR
+		| FOREACH
+		| WHILE
+		| IF
+		| BREAK
+		| CONTINUE
+
+/* Function Header Statement
+ * --------------------------
+ * Supported Formats:
+ * 		CLRS: ADD-TWO-NUMBERS(A, B) or FIZZ-BUZZ()
+ *		No Args: PRINT-TO-TEN
+ */
+FUNC_DEF -> Func_Name ARG_LIST 
+			| Func_Name
+FUNC_ARG_LIST -> Open_Paren ARG_LIST Close_Paren 
+				 | Open_Paren Close_Paren
+ARG_LIST -> ARG Comma ARG_LIST 
+			| ARG
+ARG -> Name
+
+
+/* Return Statement
+ * -----------------
+ * Supported Formats:
+ * 		CLRS: 'return [expr]' or 'return'
+ */
+RETURN -> Return_Keyword EXPR 
+		  | Return_Keyword
+
+
+/* Assign Statement
+ * -----------------
+ * Supported Formats:
+ * 		CLRS: 'a = [expr]'
+ */
+ASSIGN -> ASSIGN_TARGET Assign_Op ASSIGN_VALUE
+ASSIGN_TARGET -> EXPR
+ASSIGN_VALUE -> EXPR
+
+
+/* Augmented Assign Statement
+ * ---------------------------
+ * Supported Formats:
+ * 		any binary operation: 'a += 1' or 'a *= 2'
+ */
+AUG_ASSIGN -> ASSIGN_TARGET Bin_Op Assign_Op ASSIGN_VALUE
+
+
+/* For Statement
+ * --------------
+ * Supported Formats:
+ * 		CLRS: 'for [assign] to [value]' or 
+ *			  'for [assign] downto [value]' or 
+ *			  'for [assign] to [value] by 2'
+ * Converting to AST:
+ * 		will need to write method to convert into 3 statements
+ *		identify type of condition based on increment/decrement
+ *		if for condition isn't ASSIGN, then compare ASSIGN_TARGET of FOR_START to value
+ */
+ FOR -> For_Keyword FOR_SIMPLE STMT_LIST
+ 		| For_Keyword FOR_SIMPLE For_By_Keyword FOR_INCREMENT STMT_LIST
+ FOR_STANDARD -> FOR_TARGET Assign_Op FOR_START FOR_CONDITION FOR_END
+ FOR_TARGET -> Name
+ FOR_START -> EXPR
+ FOR_CONDITION -> For_To_Keyword 
+ 				  | For_Downto_Keyword
+ FOR_END -> EXPR
+
+
+ /* Foreach Statement
+  * ------------------
+  */
+
+ /* While Statement
+  * ------------------
+  */
+  WHILE -> While_Keyword EXPR STMT_LIST
+
+ /* If Statement
+  * ------------------
+  */
+  IF -> If_Keyword EXPR STMT_LIST 
+  		| If_Keyword EXPR STMT_LIST ELSE_IF
+  ELSE_IF -> ELSE 
+  			 | Else_Keyword IF
+  			 | Else_Keyword EXPR STMT_LIST 
+  			 | Else_Keyword EXPR STMT_LIST ELSE_IF
+  ELSE -> Else_Keyword STMT_LIST
+
+ /* Break Statement
+  * ------------------
+  */
+  BREAK -> Break_Keyword
+
+ /* Continue Statement
+  * ------------------
+  */
+  CONTINUE -> Continue_Keyword
+
+
+  // Expressions
+
+  EXPR -> BOOL_EXPR 
+  		  | BIN_EXPR 
+  		  | UNARY_EXPR 
+  		  | COMP_EXPR
+  		  | CALL 
+  		  | Int_Literal 
+  		  | Float_Literal 
+  		  | String_Literal 
+  		  | Bool_Literal 
+  		  | Name
+
+  LEFT_EXPR -> EXPR
+  RIGHT_EXPR -> EXPR
+  BOOL_EXPR -> LEFT_EXPR Bool_Op RIGHT_EXPR
+  BIN_EXPR -> LEFT_EXPR Bin_Op RIGHT_EXPR
+  UNARY_EXPR -> Unary_Op EXPR
+  COMP_EXPR -> LEFT_EXPR Comp_Op RIGHT_EXPR
+  CALL -> Func_Name FUNC_ARG_LIST
+
+
