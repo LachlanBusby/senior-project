@@ -42,6 +42,9 @@ Program
 	      | Break 
 	      | Continue
 
+	// TODO: define For(stmt start, stmt end, stmt increment) in addition to Foreach
+	// TODO: change to Foreach(stmt target, stmt iter, stmt_list body)
+
 	expr = BoolOp(boolop op, expr_list values)
 	     | BinOp(expr left, binop op, expr right)
 	     | UnaryOp(unaryop op, expr operand)
