@@ -1,5 +1,5 @@
-import Tree;
-import Constituent;
+import tree;
+import constituent;
 import Grammar;
 
 
@@ -32,7 +32,7 @@ class PCFGParser:
 
 		numStatements = statements.len()
 
-		programTree = Tree("ROOT", -1)
+		programTree = tree("ROOT", -1)
 		parentNode = programTree
 		for (stmt : statements):
 			indent = len(stmt) - len(stmt.lstrip('\t'))
