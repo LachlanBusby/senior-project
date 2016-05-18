@@ -1,5 +1,8 @@
 #!/usr/bin/python
 
+from nltk.grammar import Production
+import logging
+
 class Tree:
 	'''Represent linguistic trees, with each node consisting of a label
 	and a list of children.
@@ -40,7 +43,6 @@ class Tree:
 	def isLeaf(self):
 		return not self.children
 
-
 	# Returns true level of non-terminals which are directly above
 	# single words(leafs)
 	def isPreTerminal(self):
@@ -51,18 +53,70 @@ class Tree:
 		return not (self.isLeaf() or self.isPreTerminal())
 
 
+	def isStmt(self):
+		if self.label == "STMT":
+			if len(self.children) != 1:
+				logging.error("STMT nodes should only have 1 child.") 
+			return True
+		return False
+
+
+	def isStmtList(self):
+		if self.label == "STMT_LIST":
+			if len(self.children) > 2:
+				logging.error("STMT_LIST nodes should have at most 2 children.")
+			return True
+		return False
+
+
+	def isProgram(self):
+		if self.label == "PROGRAM":
+			if len(self.children) != 1:
+				logging.error("PROGRAM nodes should have 1 STMT_LIST child.")
+			return True
+		return False
+
+	def getStmtType(self):
+		""" if node is a statement node, returns the label for the child node """
+		if not self.isStmt():
+			return None
+		else:
+			return self.children[0].label
+
+	# returns true if children contains STMT_LIST node
+	def hasBodyStmts(self):
+		""" returns true if children contains STMT_LIST node """
+		for child in self.children:
+			return True if child.isStmtList()
+		return False
+
+	def getBodyStmts(self):
+		""" returns STMT_LIST node in children or None if there isn't one """
+		for child in self.children:
+			return child if child.isStmtList()
+		return None
+
+	def getLine(self):
+		""" 
+		if the node is a STMT node, returns the yield 
+	    minus the yield for any body statements 
+	    """
+	    return None if not self.isStmt()
+	    return self.getYield(True)
+
 	# Returns a list of words at the leafs of this tree gotten by
 	# traversing from left to right
-	def getYield(self):
+	def getYield(self, line_only=False):
 		yield_list = []
-		self.appendYield(self, yield_list)
+		self.appendYield(self, yield_list, line_only)
 		return yield_list
 
-	def appendYield(self, tree, yield_list):
+	def appendYield(self, tree, yield_list, line_only=False):
 		if tree.isLeaf():
 			yield_list.append(tree.getLabel())
 			return
 		for child in tree.getChildren():
+			continue if line_only and child.isStmtList()
 			self.appendYield(child, yield_list)
 
 
@@ -164,3 +218,37 @@ class Tree:
 		for child in self.children:
 			childrenCopies.append(deepCopy(child))
 		return Tree(tree.getLabel(), childrenCopies)
+
+	def productions(self):
+		prods = []
+		if self.isProgram():
+			prods.extend(self.children[0].productions())
+		elif self.isStmtList():
+			for child in self.children:
+				prods.extend(child.productions())
+		elif self.isStmt():
+			prods = self.children[0].productions()
+		elif not self.isLeaf():
+			rhs = []
+			for child in children:
+				prods.extend(child.productions())
+				rhs_elem = child.label if child.isLeaf() else nltk.grammar.Nonterminal(child.label)
+				rhs.append(rhs_elem)
+			prods.append(nltk.grammar.Production(nltk.grammar.Nonterminal(self.label), rhs))
+		return prods
+
+	def line_productions(self):
+		return None if not self.isStmt()
+		stmt_head = self.children[0]
+		
+		rhs = []
+		prods = []
+		for child in children:
+			continue if child.isStmtList()
+			prods.extend(child.productions())
+			rhs_elem = child.label if child.isLeaf() else nltk.grammar.Nonterminal(child.label)
+			rhs.append(rhs_elem)
+		prods.append(nltk.grammar.Production(nltk.grammar.Nonterminal(self.label), rhs))
+		return prods
+
+

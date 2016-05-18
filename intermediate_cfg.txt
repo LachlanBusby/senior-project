@@ -86,9 +86,7 @@ RETURN -> Return_Keyword EXPR
  * Supported Formats:
  * 		CLRS: 'a = [expr]'
  */
-ASSIGN -> ASSIGN_TARGET Assign_Op ASSIGN_VALUE
-ASSIGN_TARGET -> EXPR
-ASSIGN_VALUE -> EXPR
+ASSIGN -> Name Assign_Op EXPR
 
 
 /* Augmented Assign Statement
