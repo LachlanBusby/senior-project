@@ -10,15 +10,6 @@ class Constituent:
         self.start = start
         self.end = end
 
-    def getLabel(self):
-        return self.label
-
-    def getStart(self):
-        return self.start
-
-    def getEnd(self):
-        return self.end
-
     def __eq__(self, other):
         if self == other: return True
         if not isinstance(other, Constituent): return False

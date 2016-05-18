@@ -33,7 +33,7 @@ class TreeAnnotations:
 		return Tree(intermediateLabel, children)
 
 	def unAnnotateTree(self, annotatedTree):
-		debinarizedTree = Trees.spliceNodes(annotatedTree, lambda s: s.startswith('@'))
-		unAnnotatedTree = Trees.FunctionnodesStripper().transformTree(debinarizedTree)
-		unMarkovizedTree = Trees.MarkovizationAnnotationStripper().transformTree(unAnnotatedTree)
+		debinarizedTree = Trees.splice_nodes(annotatedTree, lambda s: s.startswith('@'))
+		unAnnotatedTree = Trees.FunctionnodesStripper().transform_tree(debinarizedTree)
+		unMarkovizedTree = Trees.MarkovizationAnnotationStripper().transform_tree(unAnnotatedTree)
 		return unMarkovizedTree
