@@ -58,7 +58,7 @@ def corpus2trees(corpus):
         strings = []
         string = ''
         for line in f:
-            if not line.startswith('\t'):
+            if line.startswith('(ROOT'):
                 if string:
                     strings.append(string)
                 string = line
