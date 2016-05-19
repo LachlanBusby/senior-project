@@ -8,7 +8,7 @@ class Tree:
     Original Java Code by Dan Klein."""
 
     # The leaf constructor
-    def __init__(self, label, indent, line, children=[], parent=None):
+    def __init__(self, label, indent=-1, line=-1, children=[], parent=None):
         self.label = label
         self.indent = indent
         self.line = line

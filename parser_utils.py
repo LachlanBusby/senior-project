@@ -1,9 +1,8 @@
 from tree import Tree
-from nltk.tokenize import wordpunct_tokenize
 import nltk.grammar
 
 # see NLTK WordPunctTokenizer
-def tokenize_stmt(stmt):
+def tokenize(stmt):
     return wordpunct_tokenize(stmt)
 
 

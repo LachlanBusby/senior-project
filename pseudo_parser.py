@@ -1,8 +1,9 @@
 import Tree
 import StmtClassifier
 import StmtParser
+from nltk.tokenize import wordpunct_tokenize
 from nltk.grammar import WeightedProduction, Nonterminal
-from parser_utils import substitute_literals, restore_literals, corpus2trees, trees2productions, trees2stmts
+from parser_utils import substitute_literals, restore_literals, corpus2trees, trees2productions, trees2stmts, 
 
 class PseudoParser():
 	
@@ -51,14 +52,50 @@ class PseudoParser():
 
 		return cls(productions, stmts, types)
 
+	@staticmethod
+	def _tokenize(stmt):
+		tokens = wordpunct_tokenize(stmt)
+		tokens, subs = substitute_literals(tokens)
+		return tokens
+
+	@staticmethod
+	def _setStmtYield(tree,stmt):
+		tokens = wordpunct_tokenize(stmt)
+		tree.setWords(tokens)
+		return tree
 
 	def parse(self, stmts):
 		""" takes in a list of lines/statements and returns full parse tree """
-		# numStatements = stmts.len()
-		# tree = Tree("PROGRAM", -1)
-		# parentNode = tree
-		# for (stmt : statements):
-		# 	indent = len(stmt) - len(stmt.lstrip('\t'))
-		# 	while (indent <= parentNode.getIndent()):
-		# 		parentNode = parentNode.getParent()
-		# 	parentNode = parseStatement(stmt, parentNode)
+		numStatements = stmts.len()
+		tree = Tree("PROGRAM")
+		parentNode = tree
+		for line,stmt : enumerate(statements):
+			indent = len(stmt) - len(stmt.lstrip('\t'))
+			while not (parentNode.isStmtList() or parentNode.isStmt()) or indent <= parentNode.getIndent():
+				parentNode = parentNode.getParent()
+			
+			if parentNode.isStmt():	
+				parentNode = parentNode.children[0]
+				list_tree = Tree("STMT_LIST", indent)
+				parentNode.children.append(list_tree)
+				parentNode = list_tree
+			
+			if len(parentNode.children) == 1:
+				list_tree = Tree("STMT_LIST", indent)
+				parentNode.children.append(list_tree)
+				parentNode = list_tree
+			
+			tokens = self._tokenize(stmt)
+			stmt_type = self.clf.classify_stmt(" ".join(tokens))
+			stmt_tree = Tree("STMT", indent, line)
+			stmt_tree.children.append(self.parsers[stmt_type].parse(tokens))
+			stmt_tree = self._setStmtYield(stmt_tree,stmt)
+			parentNode.children.append(stmt_tree)
+			parentNode = stmt_tree
+		return tree
+
+
+			
+
+
+
