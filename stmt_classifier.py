@@ -1,11 +1,11 @@
 import nltk
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.pipeline import Pipeline
 
 
-class StatementClassifier:
-
-	STMT_TYPES = {"FUNC_DEF", "RETURN", "ASSIGN", "AUG_ASSIGN", "FOR_RANGE", "FOR_EACH", 
-						"WHILE", "IF", "EXPR_STMT", "BREAK", "CONTINUE"}
-
+class StmtClassifier:
 
 	def __init__(self):
 		self.clf = Pipeline([('vect', CountVectorizer(lowercase=False)),

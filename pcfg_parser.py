@@ -3,6 +3,15 @@ import constituent;
 import Grammar;
 
 
+
+
+""" DEPRECATED """
+""" see pseudo_parser.py, stmt_classifier.py, stmt_parser.py """
+
+
+
+
+
 class PCFGParser:
 	
 	VERBOSE = True
