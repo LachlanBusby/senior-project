@@ -91,13 +91,15 @@ class Tree:
     def hasBodyStmts(self):
         """ returns true if children contains STMT_LIST node """
         for child in self.children:
-            return True if child.isStmtList()
+            if child.isStmtList():
+                return True 
         return False
 
     def getBodyStmts(self):
         """ returns STMT_LIST node in children or None if there isn't one """
         for child in self.children:
-            return child if child.isStmtList()
+            if child.isStmtList():
+                return child 
         return None
 
     def getLine(self):
@@ -105,7 +107,8 @@ class Tree:
         if the node is a STMT node, returns the yield 
         minus the yield for any body statements 
         """
-        return None if not self.isStmt()
+        if not self.isStmt():
+            return None 
         return self.getYield(True)
 
 
@@ -121,7 +124,8 @@ class Tree:
             yield_list.append(tree.getLabel())
             return
         for child in tree.getChildren():
-            continue if line_only and child.isStmtList()
+            if line_only and child.isStmtList():
+                continue 
             self.appendYield(child, yield_list)
 
     # Returns a list of the preterminals gotten by traversing from left
@@ -273,13 +277,15 @@ class Tree:
         return prods
 
     def line_productions(self):
-        return None if not self.isStmt()
+        if not self.isStmt():
+            return None 
         stmt_head = self.children[0]
         
         rhs = []
         prods = []
         for child in children:
-            continue if child.isStmtList()
+            if child.isStmtList():
+                continue
             prods.extend(child.productions())
             rhs_elem = child.label if child.isLeaf() else nltk.grammar.Nonterminal(child.label)
             rhs.append(rhs_elem)
