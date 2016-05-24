@@ -1,5 +1,6 @@
 from lollipop_ast import *
 import collections
+from astutils import register
 
 TAB_SIZE = 4
 F = None
@@ -11,11 +12,6 @@ def pycode_notimplemented(self, indent):
 	raise NotImplementedError("pycode method not implemented for %s" %type(self))
 
 dispatch = collections.defaultdict(lambda x, y: pycode_notimplemented(x, y))
-def register(typename):
-    def decorator(func):
-        dispatch[typename] = func
-        return func
-    return decorator
 
 def code(node, indent):
 	return dispatch.get(type(node))(node, indent)
