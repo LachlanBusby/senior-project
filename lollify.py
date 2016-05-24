@@ -42,6 +42,14 @@ def lollify_root(root):
 	"""
 	return lollify(root)
 
+@register("STMT")
+def lollify_stmtlist(node):
+	return lollify(node.children[0])
+
+@register("EXPR")
+def lollify_stmtlist(node):
+	return lollify(node.children[0])
+
 @register("STMT_LIST")
 def lollify_stmtlist(node):
 	stmts = extract_list_children("STMT", "STMT_LIST")
@@ -75,19 +83,43 @@ def lollify_assign(node):
 @register("AUG_ASSIGN")
 def lollify_augassign(node):
 	children = get_child_dict(node)
-	return Assign(lollify(children["Name"]), lollify(children["Bin_Op"]), lollify(children["EXPR"]))
+	return Assign(lollify(children["Name"]),
+				  lollify(children["Bin_Op"]),
+				  lollify(children["EXPR"]))
+
+@register("FOR_START")
+def lollify_forstart(node):
+	children = get_child_dict(node)
+	return lollify(children["Name"]), lollify(children["EXPR"])
+
+@register("FOR_END")
+def lollify_forstart(node):
+	children = get_child_dict(node)
+	return lollify(children["EXPR"])
 
 @register("FOR_RANGE")
 def lollify_forrange(node):
-	
+	children = get_child_dict(node)
+	target, start = lollify(children["FOR_START"])
+	return ForRange(target, 
+					start, 
+					lollify(children["FOR_END"]),
+					IntLiteral(1) # Hard coding increment for now, not sure which child has this info
+					lollify(children["STMT_LIST"]))
+
+@register("FOR_END")
+def lollify_forstart(node):
+	children = get_child_dict(node)
+	return lollify(children["EXPR"])
 
 @register(Foreach)
 def lollify_foreach(node):
 	pass
 
-@register(While)
+@register("WHILE")
 def lollify_while(node):
-	pass
+	return While(lollify(node.children[1],
+				 lollify(node.children[2])))
 
 @register(If)
 def lollify_if(node):
@@ -121,13 +153,16 @@ def lollify_dynamiccall(node):
 def lollify_attr(node):
 	pass
 
-@register(NilExpression)
-def lollify_nilexp(node):
-	pass
-
-@register(BinOp)
+@register("BIN_OP")
 def lollify_binop(node):
-	pass
+	children = get_child_dict(node)
+	return BinOp(lollify(children["LEFT_EXPR"]), 
+				 lollify(children["Bin_Op"],
+				 lollify(children["RIGHT_EXPR"])))
+
+@register("Bin_Op")
+def lollify_binoperator(node):
+	return lollify(node.children[0])
 
 @register(BoolOp)
 def lollify_boolop(node):
@@ -141,14 +176,6 @@ def lollify_unaryop(node):
 def lollify_compareop(node):
 	pass
 
-@register(BooleanLiteral)
-@register(StringLiteral)
-@register(FloatLiteral)
-@register(IntLiteral)
-@register(Name)
-def lollify_const(node):
-	pass
-
 @register(And)
 def lollify_and(node):
 	pass
@@ -157,25 +184,25 @@ def lollify_and(node):
 def lollify_or(node):
 	pass
 
-@register(Add)
+@register("+")
 def lollify_add(node):
-	pass
+	return Add()
 
-@register(Sub)
+@register("-")
 def lollify_sub(node):
-	pass
+	return Sub()
 
-@register(Mult)
+@register("*")
 def lollify_mult(node):
-	pass
+	return Mult()
 
-@register(Div)
+@register("/")
 def lollify_div(node):
-	pass
+	return Div()
 
-@register(Mod)
+@register("%")
 def lollify_mod(node):
-	pass
+	return Mod()
 
 @register(UPlus)
 def lollify_uplus(node):
