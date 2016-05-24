@@ -8,7 +8,7 @@ class Tree:
     Original Java Code by Dan Klein."""
 
     # The leaf constructor
-    def __init__(self, label, indent=-1, line=-1, children=[], parent=None):
+    def __init__(self, label, indent, line, children=[], parent=None):
         self.label = label
         self.indent = indent
         self.line = line
@@ -245,6 +245,8 @@ class Tree:
         if self.getLabel() is not None:
             string += self.getLabel() + ',' + str(self.line) + ',' + str(self.indent)
         if not self.isLeaf():
+            
+            print self.label + ": " + str(self.children) + "\n"
             for child in self.children:
                 string += '\n' + child.toString()
             string += ')'
