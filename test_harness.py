@@ -30,8 +30,9 @@ def while_stmt():
 	op_tree = Tree("Comp_Op", indent, line, children=[Tree("<", indent, line)])
 	int_tree = Tree("EXPR", indent, line, children=[Tree("Int_Literal", indent, line, children=[Tree("10", indent, line)])])
 	comp_tree = Tree("COMP_EXPR", indent, line, children=[x_tree, op_tree, int_tree])
+	expr_tree = Tree("EXPR", indent, line, children=[comp_tree])
 
-	while_tree = Tree("WHILE", indent, line, children=[comp_tree, Tree("STMT_LIST", indent + 1, line + 1)])
+	while_tree = Tree("WHILE", indent, line, children=[expr_tree, Tree("STMT_LIST", indent + 1, line + 1)])
 	return Tree("STMT", indent, line, children=[while_tree])
 
 print for_range_stmt().toString()
