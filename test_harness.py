@@ -9,13 +9,13 @@ def for_range_stmt():
 	indent = 1
 	line = 1
 
-	start_tree = Tree("FOR_START", children=[Tree("ASSIGN")])
-	start_tree.children.append(Tree("Name", children=[Tree("i")]))
-	start_tree.children.append(Tree("Assign_Op", children=[Tree("=")]))
-	start_tree.children.append(Tree("EXPR",children=[Tree("Int_Literal", children=[Tree("0")])]))
-	cond_tree = Tree("FOR_CONDITION",children=[Tree("For_LEQ", children=Tree("to"))])
-	end_tree = Tree("FOR_END", children=[Tree("EXPR", children=[Tree("Int_Literal",children=[Tree("10")])])])
-	for_range = Tree("FOR_RANGE", children=[start_tree,cond_tree,end_tree,Tree("STMT_LIST", indent + 1, line + 1)])
+	start_tree = Tree("FOR_START", indent, line, children=[Tree("ASSIGN", indent, line)])
+	start_tree.children.append(Tree("Name", indent, line, children=[Tree("i", indent, line)]))
+	start_tree.children.append(Tree("Assign_Op", indent, line, children=[Tree("=", indent, line)]))
+	start_tree.children.append(Tree("EXPR", indent, line, children=[Tree("Int_Literal", indent, line, children=[Tree("0", indent, line, )])]))
+	cond_tree = Tree("FOR_CONDITION", indent, line, children=[Tree("For_LEQ", indent, line, children=[Tree("to", indent, line)])])
+	end_tree = Tree("FOR_END", indent, line, children=[Tree("EXPR", indent, line, children=[Tree("Int_Literal",indent, line, children=[Tree("10", indent, line)])])])
+	for_range = Tree("FOR_RANGE", indent, line, children=[start_tree,cond_tree,end_tree,Tree("STMT_LIST", indent + 1, line + 1)])
 	return Tree("STMT", indent, line, children=[for_range])
 
 def while_stmt():
@@ -25,13 +25,14 @@ def while_stmt():
 	indent = 1
 	line = 1
 
-	expr_tree = Tree("EXPR", children = [])
-	x_tree = Tree("EXPR",children=[Tree("Name", children=[Tree("x")])])
-	op_tree = Tree("Comp_Op", children=[Tree("<")])
-	int_tree = Tree("EXPR", children=[Tree("Int_Literal", children=[Tree("10")])])
-	comp_tree = Tree("COMP_EXPR", children=[x_tree, op_tree, int_tree])
+	expr_tree = Tree("EXPR", indent, line, children = [])
+	x_tree = Tree("EXPR",indent, line, children=[Tree("Name", indent, line, children=[Tree("x", indent, line)])])
+	op_tree = Tree("Comp_Op", indent, line, children=[Tree("<", indent, line)])
+	int_tree = Tree("EXPR", indent, line, children=[Tree("Int_Literal", indent, line, children=[Tree("10", indent, line)])])
+	comp_tree = Tree("COMP_EXPR", indent, line, children=[x_tree, op_tree, int_tree])
+	expr_tree = Tree("EXPR", indent, line, children=[comp_tree])
 
-	while_tree = Tree("WHILE", children=[comp_tree, Tree("STMT_LIST", indent + 1, line + 1)])
+	while_tree = Tree("WHILE", indent, line, children=[expr_tree, Tree("STMT_LIST", indent + 1, line + 1)])
 	return Tree("STMT", indent, line, children=[while_tree])
 
 print for_range_stmt().toString()
