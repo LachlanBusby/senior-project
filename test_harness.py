@@ -9,15 +9,15 @@ def for_range_tree(var_name, start_val, end_val, down_to=False, by_val=None, ind
 	"""
 	for_range = Tree("FOR_RANGE", indent, line)
 
-	start_tree = Tree("FOR_START", indent, line, children=[Tree("ASSIGN", indent, line)])
-	start_tree.children[0].append(Tree("Name", indent, line, children=[Tree(var_name, indent, line)]))
-	start_tree.children[0].append(Tree("Assign_Op", indent, line, children=[Tree("=", indent, line)]))
-	start_tree.children[0].append(Tree("EXPR", indent, line, children=[Tree("Int_Literal", indent, line, children=[Tree(start_val, indent, line)])]))
-	for_range.children.append(start_tree)
+	assign_tree = Tree("ASSIGN", indent, line)
+	assign_tree.children.append(Tree("Name", indent, line, children=[Tree(var_name, indent, line)]))
+	assign_tree.children.append(Tree("Assign_Op", indent, line, children=[Tree("=", indent, line)]))
+	assign_tree.children.append(Tree("EXPR", indent, line, children=[Tree("Int_Literal", indent, line, children=[Tree(start_val, indent, line)])]))
+	for_range.children.append(Tree("FOR_START", indent, line, children=[assign_tree]))
 	
-	cond_nt = "For_LEq" if not downto else "For_GEq"
-	cond_t = "to" if not downto else "downto"
-	cond_tree = Tree("FOR_CONDITION", indent, line, children=[Tree(cond_nt, indent, line, children=[Tree(cont_t, indent, line)])])
+	cond_nt = "For_LEq" if not down_to else "For_GEq"
+	cond_t = "to" if not down_to else "downto"
+	cond_tree = Tree("FOR_CONDITION", indent, line, children=[Tree(cond_nt, indent, line, children=[Tree(cond_t, indent, line)])])
 	for_range.children.append(cond_tree)
 
 	end_tree = Tree("FOR_END", indent, line, children=[Tree("EXPR", indent, line, children=[Tree("Int_Literal",indent, line, children=[Tree(end_val, indent, line)])])])
@@ -31,6 +31,9 @@ def for_range_tree(var_name, start_val, end_val, down_to=False, by_val=None, ind
 
 	for_range.children.append(Tree("STMT_LIST", indent + 1, line + 1))
 	return Tree("STMT", indent, line, children=[for_range])
+
+def while_stmt():
+
 
 def for_range_stmt():
 	"""
@@ -69,4 +72,4 @@ def while_stmt():
 
 print for_range_stmt().toString()
 print "\n\n\n"
-print while_stmt().toString()
+#print while_stmt().toString()

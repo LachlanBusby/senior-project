@@ -109,16 +109,13 @@ GENERAL_NTS = "PROGRAM,ARG_LIST,ARG,Func_Name,Quotation,Single_Quotation,Period,
 EXPR_NTS = "EXPR_LIST,EXPR,BOOL_EXPR,BIN_EXPR,UNARY_EXPR,COMP_EXPR,CALL,Int_Literal,Float_Literal,String_Literal,BOOL_LITERAL,Name"
 OP_NTS = "Assign_Op,BOOL_OP,BIN_OP,UNARY_OP,COMP_OP"
 STMT_NTS = "STMT_LIST,STMT,FUNC_DEF,RETURN,ASSIGN,AUG_ASSIGN,FOR_RANGE,FOREACH,WHILE,IF,BREAK,CONTINUE,EXPR_STMT"
-
-SHARED_NTS = GENERAL_NTS + "," + EXPR_NTS + "," + OP_NTS + "," + STMT_NTS
-
-
 BOOL_OP = "Bool_And,Bool_Or"
 UNARY_OP = "Unary_Not,Unary_Plus,Unary_Minus"
 COMP_OP = "Comp_LEq,Comp_LE,Comp_GEq,Comp_GE,Comp_Eq,Comp_NEq" # TODO: in??
 BIN_OP = "Bin_Add,Bin_Sub,Bin_Mult,Bin_Div,Bin_Mod"
 BOOL_LITERAL = "Bool_True,Bool_False"
 
+SHARED_NTS = GENERAL_NTS + "," + EXPR_NTS + "," + OP_NTS + "," + STMT_NTS
 
 ### specific to statement types ###
 FUNC_DEF_NTS = ""
