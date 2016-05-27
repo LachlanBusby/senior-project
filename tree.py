@@ -257,7 +257,7 @@ class Tree:
         if not self.isLeaf():
             string += '(' + self.label
         if self.indent != -1:
-            string += ' ,' + str(self.indent) + ',' + str(self.line)
+            string += ',' + str(self.indent) + ',' + str(self.line)
         if not self.isLeaf():
             for child in self.children:
                 string += '\n' + ('\t' * (nindent + 1)) + child.toStringHelper(nindent+1)

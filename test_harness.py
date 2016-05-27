@@ -13,7 +13,7 @@ def for_range_stmt():
 	start_tree.children.append(Tree("Name", children=[Tree("i")]))
 	start_tree.children.append(Tree("Assign_Op", children=[Tree("=")]))
 	start_tree.children.append(Tree("EXPR",children=[Tree("Int_Literal", children=[Tree("0")])]))
-	cond_tree = Tree("FOR_CONDITION",children=[Tree("For_LEQ", children=Tree("to"))])
+	cond_tree = Tree("FOR_CONDITION",children=[Tree("For_LEQ", children=[Tree("to")])])
 	end_tree = Tree("FOR_END", children=[Tree("EXPR", children=[Tree("Int_Literal",children=[Tree("10")])])])
 	for_range = Tree("FOR_RANGE", children=[start_tree,cond_tree,end_tree,Tree("STMT_LIST", indent + 1, line + 1)])
 	return Tree("STMT", indent, line, children=[for_range])
