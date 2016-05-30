@@ -32,6 +32,7 @@ Continue_Keyword -> 'continue'
 Int_Literal -> any whole number
 Float_Literal -> any decimal
 String_Literal -> any string
+
 Bool_Literal -> 'true' | 'false'
 
 /* Program Root
@@ -164,8 +165,8 @@ AUG_ASSIGN -> ASSIGN_TARGET Bin_Op Assign_Op ASSIGN_VALUE
 
   LEFT_EXPR -> EXPR
   RIGHT_EXPR -> EXPR
-  BOOL_EXPR -> LEFT_EXPR Bool_Op RIGHT_EXPR
-  BIN_EXPR -> LEFT_EXPR Bin_Op RIGHT_EXPR
+  BOOL_EXPR -> EXPR Bool_Op EXPR
+  BIN_EXPR -> EXPR Bin_Op EXPR
   UNARY_EXPR -> Unary_Op EXPR
-  COMP_EXPR -> LEFT_EXPR Comp_Op RIGHT_EXPR
+  COMP_EXPR -> EXPR Comp_Op EXPR
   CALL -> Func_Name FUNC_ARG_LIST

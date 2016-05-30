@@ -1,4 +1,5 @@
 #!/usr/bin/python
+import logging
 
 from constituent import Constituent
 
@@ -8,7 +9,7 @@ class Tree:
     Original Java Code by Dan Klein."""
 
     # The leaf constructor
-    def __init__(self, label, indent=-1, line=-1, children=[], parent=None):
+    def __init__(self, label, indent, line, children=[], parent=None):
         self.label = label
         self.indent = indent
         self.line = line
@@ -200,53 +201,68 @@ class Tree:
     @staticmethod
     def fromString(string):
         lines = string.split('\n')
-        return Tree.fromStringHelper(lines)
-
-    @staticmethod
-    def fromStringHelper(lines, last_parent=None):
+        built_trees = []
         root = None
         for l in lines:
-            label, line, indent = l.strip().translate(None, '()').split(',')
-            line = int(line)
-            indent = int(indent)
-            if last_parent is None:
-                # this is the root node
-                root = Tree(label, indent, line, [], None)
-                last_parent = root
-            elif indent > last_parent.indent:
-                # the last parent must be this child's parent
-                new_tree = Tree(label, indent, line, [], last_parent)
-                last_parent.children.append(new_tree)
-                if last_parent == root:
-                    last_parent = new_tree
-            elif indent == last_parent.indent:
-                # they have the same parent
-                last_parent = last_parent.parent
-                new_tree = Tree(label, indent, line, [], last_parent)
-                last_parent.children.append(new_tree)
-                if last_parent == root:
-                    last_parent = new_tree
-            elif indent < last_parent.indent:
-                # traverse up the parents tree until you find an indent less than our current indent
-                while indent <= last_parent.parent:
-                    last_parent = last_parent.parent
-                new_tree = Tree(label, indent, line, [], last_parent)
-                last_parent.children.append(new_tree)
-                if last_parent == root:
-                    last_parent = new_tree
-
+            str_indent = l.count('\t')
+            l = l.strip().translate(None, ':')
+            line = -1
+            indent = -1
+            lst = l.split(' ')
+            n_str = []
+            for s in lst:
+                if not (len(s) == s.count('(') or len(s) == s.count(')')):
+                    n_str.append(s)
+            l = ''.join(n_str)
+            if l:
+                if ',' in l:
+                    label, line, indent = l.split(',')
+                else:
+                    label = l
+                line = int(line) if line != 'None' else None
+                indent = int(indent) if indent != 'None' else None
+                new_tree = Tree(label, line, indent, [], None)
+                if label == 'STMT_LIST' and len(built_trees) == 1:
+                    # this has to be attached to the root node
+                    root.children.append(new_tree)
+                    new_tree.parent = root
+                elif label == 'STMT' or label == 'STMT_LIST':
+                    for i in reversed(xrange(len(built_trees))):
+                        t, ind = built_trees[i]
+                        if t.isStmtList() and ind == str_indent-1:
+                            new_tree.parent = t
+                            t.children.append(new_tree)
+                            break
+                else:
+                    if len(built_trees) == 0:
+                        # this is the root
+                        root = Tree(label, line, indent, [], None)
+                    else:
+                        for i in reversed(xrange(len(built_trees))):
+                            # iterate until we find a suitable parent
+                            t, ind = built_trees[i]
+                            if ind == str_indent-1:
+                                new_tree.parent = t
+                                t.children.append(new_tree)
+                                break
+                built_trees.append((new_tree, str_indent))
         return root
 
     # Returns a string representation of this tree using bracket notation.
     def toString(self):
-        string = '\t' * self.indent
+        return self.toStringHelper(0)
+
+    def toStringHelper(self, nindent):
+        string = ''
         if not self.isLeaf():
-            string += '('
-        if self.getLabel() is not None:
-            string += self.getLabel() + ',' + str(self.line) + ',' + str(self.indent)
+            string += '(' + self.label
+        if self.indent != -1:
+            string += ',' + str(self.indent) + ',' + str(self.line)
         if not self.isLeaf():
+            
+            print self.label + ": " + str(self.children) + "\n"
             for child in self.children:
-                string += '\n' + child.toString()
+                string += '\n' + ('\t' * (nindent + 1)) + child.toStringHelper(nindent+1)
             string += ')'
         return string
 
@@ -291,3 +307,11 @@ class Tree:
             rhs.append(rhs_elem)
         prods.append(nltk.grammar.Production(nltk.grammar.Nonterminal(self.label), rhs))
         return prods
+
+# used to test from/toString
+# s = "( PROGRAM \n\t( STMT_LIST ,None,0:\n\t\t( STMT ,1,0:\n\t\t\t( FUNC_DEF \n\t\t\t\t( Func_Name \n\t\t\t\t\t( 'EXAMPLE-METHOD' )\n\t\t\t\t( Open_Paren \n\t\t\t\t\t( '(' )\n\t\t\t\t( ARG_LIST \n\t\t\t\t\t( ARG \n\t\t\t\t\t\t( EXPR \n\t\t\t\t\t\t\t( Name \n\t\t\t\t\t\t\t\t( 'x' ))))\n\t\t\t\t( Close_Paren \n\t\t\t\t\t( ')' )\n\t\t( STMT_LIST ,None,1:\n\t\t\t( STMT ,2,1:\n\t\t\t\t( IF \n\t\t\t\t\t( If_Keyword \n\t\t\t\t\t\t( 'If' )\n\t\t\t\t\t( EXPR\n\t\t\t\t\t\t( COMP_EXPR\n\t\t\t\t\t\t\t( EXPR\n\t\t\t\t\t\t\t\t( Name\n\t\t\t\t\t\t\t\t\t( 'x'))\n\t\t\t\t\t\t\t( COMP_OP\n\t\t\t\t\t\t\t\t( Comp_LE\n\t\t\t\t\t\t\t\t\t( '<'))\n\t\t\t\t\t\t\t( EXPR\n\t\t\t\t\t\t\t\t( Int_Literal\n\n\t\t\t\t\t\t\t\t\t( '10'))))\n\t\t\t( STMT_LIST ,None,2:\n\t\t\t\t( STMT ,3,2:\n\t\t\t\t\t( EXPR_STMT\n\t\t\t\t\t\t( CALL\n\t\t\t\t\t\t\t( Func_Name\n\t\t\t\t\t\t\t\t( 'print'\n\t\t\t\t\t\t\t( ARG_LIST\n\t\t\t\t\t\t\t\t( ARG\n\t\t\t\t\t\t\t\t\t( EXPR\n\t\t\t\t\t\t\t\t\t\t( Name\n\t\t\t\t\t\t\t\t\t\t\t( 'x' ))))))))))))))))))))))))))"
+
+# print s
+# t = Tree.fromString(s)
+# print
+# print t.toString()
