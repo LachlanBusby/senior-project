@@ -216,6 +216,10 @@ def pycode_not(self, indent):
 def pycode_eq(self, indent):
 	return "=="
 
+@register(Neq)
+def pycode_eq(self, indent):
+	return "!="
+
 @register(Lt)
 def pycode_lt(self, indent):
 	return "<"

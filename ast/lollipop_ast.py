@@ -425,6 +425,9 @@ class Not(UnaryOperator):
 class Eq(CompareOperator):
 	def __init__(self):
 		pass
+class Neq(CompareOperator):
+	def __init__(self):
+		pass
 class Lt(CompareOperator):
 	def __init__(self):
 		pass
