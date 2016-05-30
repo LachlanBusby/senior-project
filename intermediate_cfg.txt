@@ -32,6 +32,7 @@ Continue_Keyword -> 'continue'
 Int_Literal -> any whole number
 Float_Literal -> any decimal
 String_Literal -> any string
+
 Bool_Literal -> 'true' | 'false'
 
 /* Program Root
