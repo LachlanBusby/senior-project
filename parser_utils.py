@@ -106,8 +106,8 @@ def stmt_list_prods(tree, prods):
 
 ### shared for all statements ###
 GENERAL_NTS = "PROGRAM,ARG_LIST,ARG,Func_Name,Quotation,Single_Quotation,Period,Comma,Colon,Semi_Colon,Open_Paren,Close_Paren,Open_Bracket,Close_Bracket,Open_Brace,Close_Brace"
-EXPR_NTS = "EXPR_LIST,EXPR,BOOL_EXPR,BIN_EXPR,UNARY_EXPR,COMP_EXPR,CALL,Int_Literal,Float_Literal,String_Literal,Bool_Literal,Name"
-OP_NTS = "Assign_Op,Bool_Op,Bin_Op,Unary_Op,Comp_Op"
+EXPR_NTS = "EXPR_LIST,EXPR,BOOL_EXPR,BIN_EXPR,UNARY_EXPR,COMP_EXPR,CALL,Int_Literal,Float_Literal,String_Literal,BOOL_LITERAL,Name,Bool_True,Bool_False"
+OP_NTS = "Assign_Op,BOOL_OP,BIN_OP,UNARY_OP,COMP_OP,Bool_And,Bool_Or,Unary_Not,Unary_Plus,Unary_Minus,Comp_LEq,Comp_LE,Comp_GEq,Comp_GE,Comp_Eq,Comp_NEq,Bin_Add,Bin_Sub,Bin_Mult,Bin_Div,Bin_Mod"
 STMT_NTS = "STMT_LIST,STMT,FUNC_DEF,RETURN,ASSIGN,AUG_ASSIGN,FOR_RANGE,FOREACH,WHILE,IF,BREAK,CONTINUE,EXPR_STMT"
 
 SHARED_NTS = GENERAL_NTS + "," + EXPR_NTS + "," + OP_NTS + "," + STMT_NTS
