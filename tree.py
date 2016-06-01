@@ -9,46 +9,48 @@ class Tree:
     Original Java Code by Dan Klein."""
 
     # The leaf constructor
-    def __init__(self, label, indent, line, children=[], parent=None):
+    def __init__(self, label, indent=-1, line=-1, children=None, parent=None):
         self.label = label
         self.indent = indent
         self.line = line
-        self.children = children
+        self.children = children if children is not None else []
         self.parent = parent
 
-    def getChildren(self):
-        return self.children
+    # def getChildren(self):
+    #     return self.children
 
-    def setChildren(self, children):
-        self.children = children
+    # def setChildren(self, children):
+    #     self.children = children
 
-    def getLabel(self):
-        return self.label
+    # def getLabel(self):
+    #     return self.label
 
-    def setLabel(self, label):
-        self.label = label
+    # def setLabel(self, label):
+    #     self.label = label
 
-    def getParent(self):
-        return self.parent
+    # def getParent(self):
+    #     return self.parent
 
-    def setParent(self, parent):
-        self.parent = parent
+    # def setParent(self, parent):
+    #     self.parent = parent
 
-    def getIndent(self):
-        return self.indent
+    # def getIndent(self):
+    #     return self.indent
 
-    def setIndent(self, indent):
-        self.indent = indent
+    # def setIndent(self, indent):
+    #     self.indent = indent
 
-    def getLine(self):
-        return self.line
+    # def getLine(self):
+    #     return self.line
 
-    def setLine(self, line):
-        self.line = line
+    # def setLine(self, line):
+    #     self.line = line
 
     # Returns true at the word(leaf) level of a tree
     def isLeaf(self):
-        return self.children is None # is children ever None??
+        if self.label == "STMT" or self.label == "STMT_LIST":
+            return False
+        return len(self.children) == 0 # is children ever None??
 
     # Returns true level of non-terminals which are directly above
     # single words(leafs)
@@ -72,7 +74,6 @@ class Tree:
                 logging.error("STMT_LIST nodes should have at most 2 children.")
             return True
         return False
-
 
     def isProgram(self):
         if self.label == "PROGRAM":
@@ -101,6 +102,22 @@ class Tree:
         for child in self.children:
             if child.isStmtList():
                 return child 
+        return None
+
+    def getStmtBody(self):
+        if self.isStmt() and len(self.children) == 1:
+            stmt_child = self.children[0]
+            return stmt_child.getChild("STMT_LIST")
+        return None
+
+    def getChild(self, label, index=0):
+        """
+        returns first child after specified index with the desired label
+        returns None if no child is found with that label
+        """
+        for c in self.children[index:]:
+            if c.label == label:
+                return c
         return None
 
     def getLine(self):
@@ -248,22 +265,38 @@ class Tree:
                 built_trees.append((new_tree, str_indent))
         return root
 
+### TODO ###
+    # @staticmethod
+    # def fromStringV2(string):
+    #     lines = string.split('\n')
+    #     built_trees = []
+    #     root = None
+    #     for l in lines:
+    #         stripped = l.lstrip('\t')
+    #         indent = len(l) - stripped
+    #         stripped = l.lstrip('(')
+
     # Returns a string representation of this tree using bracket notation.
     def toString(self):
         return self.toStringHelper(0)
 
     def toStringHelper(self, nindent):
-        string = ''
-        if not self.isLeaf():
-            string += '(' + self.label
-        if self.indent != -1:
-            string += ',' + str(self.indent) + ',' + str(self.line)
-        if not self.isLeaf():
-            
-            print self.label + ": " + str(self.children) + "\n"
-            for child in self.children:
-                string += '\n' + ('\t' * (nindent + 1)) + child.toStringHelper(nindent+1)
+        string = '' + ('\t' * nindent)
+        
+        if self.isLeaf():
+            string += "(\'" + self.label + "\')"
+        else:
+            string += "(" + self.label
+            if self.label == "STMT_LIST":
+                string += ',' + str(self.indent) + ':'
+            elif self.label == "STMT":
+                string += ',' + str(self.indent) + ',' + str(self.line) + ':'
+        
+            if len(self.children) > 0:
+                for child in self.children:
+                    string += '\n' + child.toStringHelper(nindent+1)
             string += ')'
+
         return string
 
     def deepCopy(self, tree=None):
