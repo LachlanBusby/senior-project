@@ -1,6 +1,12 @@
 import collections
 import sys
 
+def register(typename):
+    def decorator(func):
+        dispatch[typename] = func
+        return func
+    return decorator
+
 def accepts(*types, **kw):
 	'''Function decorator. Checks decorated function's arguments are
 	of the expected types.
