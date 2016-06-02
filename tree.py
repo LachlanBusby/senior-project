@@ -1,5 +1,6 @@
 #!/usr/bin/python
 import logging
+import nltk
 
 from constituent import Constituent
 
@@ -16,35 +17,35 @@ class Tree:
         self.children = children if children is not None else []
         self.parent = parent
 
-    # def getChildren(self):
-    #     return self.children
+    def getChildren(self):
+        return self.children
 
-    # def setChildren(self, children):
-    #     self.children = children
+    def setChildren(self, children):
+        self.children = children
 
-    # def getLabel(self):
-    #     return self.label
+    def getLabel(self):
+        return self.label
 
-    # def setLabel(self, label):
-    #     self.label = label
+    def setLabel(self, label):
+        self.label = label
 
-    # def getParent(self):
-    #     return self.parent
+    def getParent(self):
+        return self.parent
 
-    # def setParent(self, parent):
-    #     self.parent = parent
+    def setParent(self, parent):
+        self.parent = parent
 
-    # def getIndent(self):
-    #     return self.indent
+    def getIndent(self):
+        return self.indent
 
-    # def setIndent(self, indent):
-    #     self.indent = indent
+    def setIndent(self, indent):
+        self.indent = indent
 
-    # def getLine(self):
-    #     return self.line
+    def getLine(self):
+        return self.line
 
-    # def setLine(self, line):
-    #     self.line = line
+    def setLine(self, line):
+        self.line = line
 
     # Returns true at the word(leaf) level of a tree
     def isLeaf(self):
@@ -309,16 +310,16 @@ class Tree:
 
     def productions(self):
         prods = []
-        if self.isProgram():
+        if self.label == "PROGRAM":
             prods.extend(self.children[0].productions())
-        elif self.isStmtList():
+        elif self.label == "STMT_LIST":
             for child in self.children:
                 prods.extend(child.productions())
-        elif self.isStmt():
+        elif self.label == "STMT":
             prods = self.children[0].productions()
-        elif not self.isLeaf():
+        elif len(self.children) > 0:
             rhs = []
-            for child in children:
+            for child in self.children:
                 prods.extend(child.productions())
                 rhs_elem = child.label if child.isLeaf() else nltk.grammar.Nonterminal(child.label)
                 rhs.append(rhs_elem)
@@ -327,18 +328,18 @@ class Tree:
 
     def line_productions(self):
         if not self.isStmt():
-            return None 
+            return None
         stmt_head = self.children[0]
         
         rhs = []
         prods = []
-        for child in children:
+        for child in stmt_head.children:
             if child.isStmtList():
                 continue
             prods.extend(child.productions())
             rhs_elem = child.label if child.isLeaf() else nltk.grammar.Nonterminal(child.label)
             rhs.append(rhs_elem)
-        prods.append(nltk.grammar.Production(nltk.grammar.Nonterminal(self.label), rhs))
+        prods.append(nltk.grammar.Production(nltk.grammar.Nonterminal(stmt_head.label), rhs))
         return prods
 
 # used to test from/toString

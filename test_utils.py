@@ -1,4 +1,5 @@
 from tree import Tree
+import parser_utils
 
 ### GENERAL METHODS ###
 
@@ -204,3 +205,11 @@ def expr_stmt_tree(expr, indent=0, line=1):
 #print arg_list_tree(["a", "b"]).toString()
 #print assign_stmt_tree("x", "2").toString()
 #print for_range_tree("i", "0", "10").toString()
+
+productions = {stmt_type: [] for stmt_type in parser_utils.STMT_TYPES}
+parser_utils.trees2productions([continue_tree()], productions)
+for p in productions:
+	p_strs = []
+	for r in productions[p]:
+		p_strs.append(r.unicode_repr())
+	print p + " : [" + "; ".join(p_strs) + "]"

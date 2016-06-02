@@ -20,6 +20,13 @@ def add_two_numbers():
 	prog_body = Tree("STMT_LIST", indent=0, line=0, children=[func_tree])
 	return Tree("PROGRAM", children=[prog_body])
 
+def add_two_numbers_stmts():
+	lines = []
+	lines.append("ADD-TWO-NUMBERS(a, b)")
+	lines.append("\tc = a + b")
+	lines.append("\treturn c")
+	return lines
+
 #print add_two_numbers().toString()
 
 def print_to_number():
@@ -45,4 +52,4 @@ def print_to_number():
 	prog_body = Tree("STMT_LIST", indent=0, line=0, children=[func_tree])
 	return Tree("PROGRAM", children=[prog_body])
 
-print print_to_number().toString()
+#print print_to_number().toString()

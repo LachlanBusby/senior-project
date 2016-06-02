@@ -1,6 +1,9 @@
 from tree import Tree
 import nltk.grammar
 
+STMT_TYPES = ["FUNC_DEF", "RETURN", "ASSIGN", "AUG_ASSIGN", "FOR_RANGE", "FOR_EACH", "WHILE", "IF", "BREAK", "CONTINUE", "EXPR_STMT"]
+ROOT_TYPE = "PROGRAM"
+
 # see NLTK WordPunctTokenizer
 def tokenize(stmt):
     return wordpunct_tokenize(stmt)
@@ -11,6 +14,21 @@ INT_SUB = "___INT_LIT___"
 FLOAT_SUB = "___FLOAT_LIT___"
 STR_SUB = "___STR_LIT___"
 
+def preprocess_trees(trees):
+    subs = []
+    for t in trees:
+        orig_yield = t.getYield()
+        sub_yield, t_subs = substitute_literals(orig_yield)
+        t.setWords(sub_yield)
+        subs.append(t_subs)
+    return trees, subs
+
+def postprocess_trees(trees, substitutions):
+    for idx, t in enumerate(trees):
+        sub_yield = t.getYield()
+        orig_yield = restore_literals(sub_yield, substitutions[idx])
+        t.setWords(orig_yield)
+    return trees
 
 def substitute_literals(tokens):
     subs = {}
@@ -37,8 +55,9 @@ def restore_literals(tokens, substitutions):
 def is_var(token):
     """ identifies one letter tokens that are probably variable names """
     """ excludes actual one letter words ("a" and "I") """
-    return False if len(t) > 0 or not t.isalpha()
-    return True if t != "a" and t != "I"
+    if len(token) > 0 or not token.isalpha():
+        return False 
+    return (token != "a" and token != "I")
 
 def is_int(token):
     """ identifies numeric constants """
@@ -83,22 +102,22 @@ def trees2productions(trees, prods):
     """ fills in map of productions for each statement type """
     for t in trees:
         stmt_list = t.children[0] if not t.isStmtList() else t # t is either program or stmt_list
-        stmt_list_prods(tree, prods)
+        stmt_list_prods(t, prods)
 
 def stmt_prods(tree, prods):
     stmt_type = tree.getStmtType()
-    return if stmt_type is None
-    prods[stmt_type].extend(tree.line_productions())
-    
-    body = tree.getBodyStmts()
-    stmt_list_prods(body, prods) if body is not None
+    if stmt_type is not None:
+        prods[stmt_type].extend(tree.line_productions())
+        body = tree.getBodyStmts()
+        if body is not None:
+            stmt_list_prods(body, prods) 
 
 def stmt_list_prods(tree, prods):
     for child in tree.children:
-        if child.isStmt():
-            stmt_prods(tree, prods)
-        elif child.isStmtList():
-            stmt_list_prods(tree, prods)
+        if child.label == "STMT":
+            stmt_prods(child, prods)
+        elif child.label == "STMT_LIST":
+            stmt_list_prods(child, prods)
 
 
 # Non-Terminals are ALL_CAPS
