@@ -26,7 +26,7 @@ def call_tree(func_name, args=None, parens=False):
 	if args is not None:
 		call.children.append(arg_list_tree(args))
 	if parens:
-		call.children.append(Tree("Close_Paren", children=[Tree('(')]))
+		call.children.append(Tree("Close_Paren", children=[Tree(')')]))
 	return Tree("EXPR", children=[call])
 
 ### STATEMENT SPECIFIC ###
@@ -38,7 +38,7 @@ def func_def_tree(func_name, args=None, indent=0, line=1):
 	def_tree.children.append(Tree("Open_Paren", children=[Tree('(')]))
 	if args is not None:
 		def_tree.children.append(arg_list_tree(args))
-	def_tree.children.append(Tree("Close_Paren", children=[Tree('(')]))
+	def_tree.children.append(Tree("Close_Paren", children=[Tree(')')]))
 	def_tree.children.append(Tree("STMT_LIST", indent + 1, line + 1))
 	return Tree("STMT", indent, line, children=[def_tree])
 	
@@ -206,10 +206,10 @@ def expr_stmt_tree(expr, indent=0, line=1):
 #print assign_stmt_tree("x", "2").toString()
 #print for_range_tree("i", "0", "10").toString()
 
-productions = {stmt_type: [] for stmt_type in parser_utils.STMT_TYPES}
-parser_utils.trees2productions([continue_tree()], productions)
-for p in productions:
-	p_strs = []
-	for r in productions[p]:
-		p_strs.append(r.unicode_repr())
-	print p + " : [" + "; ".join(p_strs) + "]"
+# productions = {stmt_type: [] for stmt_type in parser_utils.STMT_TYPES}
+# parser_utils.stmt_prods(if_tree("x", "<", "10"), productions)
+# for p in productions:
+# 	p_strs = []
+# 	for r in productions[p]:
+# 		p_strs.append(r.unicode_repr())
+# 	print p + " : [" + "; ".join(p_strs) + "]"

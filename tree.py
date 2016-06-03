@@ -128,7 +128,7 @@ class Tree:
         """
         if not self.isStmt():
             return None 
-        return self.getYield(True)
+        return " ".join(self.getYield(True))
 
 
     # Returns a list of words at the leafs of this tree gotten by
@@ -308,6 +308,45 @@ class Tree:
             childrenCopies.append(self.deepCopy(child))
         return Tree(tree.getLabel(), childrenCopies)
 
+    def stmt_productions(self):
+        if not self.isStmt():
+            return []
+
+        prods = []
+        head = self.children[0]
+
+        rhs = []
+        for child in head.children:
+            if child.isStmtList():
+                continue
+            if child.isLeaf():
+                rhs.append(child.label)
+            else:
+                rhs.append(nltk.grammar.Nonterminal(child.label))
+            prods.extend(child.productions_v2())
+
+        lhs = nltk.grammar.Nonterminal(head.label)
+        prods.append(nltk.grammar.Production(lhs, rhs))
+        return prods
+
+    def productions_v2(self):
+        prods = []
+        if self.isLeaf():
+            return prods
+
+        rhs = []
+        for child in self.children:
+            if child.isLeaf():
+                rhs.append(child.label)
+            else:
+                rhs.append(nltk.grammar.Nonterminal(child.label))
+            prods.extend(child.productions_v2())
+
+        if not (self.isProgram() or self.isStmt() or self.isStmtList()):
+            lhs = nltk.grammar.Nonterminal(self.label)
+            prods.append(nltk.grammar.Production(lhs, rhs))
+        return prods
+
     def productions(self):
         prods = []
         if self.label == "PROGRAM":
@@ -326,6 +365,7 @@ class Tree:
             prods.append(nltk.grammar.Production(nltk.grammar.Nonterminal(self.label), rhs))
         return prods
 
+
     def line_productions(self):
         if not self.isStmt():
             return None
@@ -341,6 +381,22 @@ class Tree:
             rhs.append(rhs_elem)
         prods.append(nltk.grammar.Production(nltk.grammar.Nonterminal(stmt_head.label), rhs))
         return prods
+
+    def get_stmt_types(self):
+        stmts = []
+        types = []
+
+        if self.isStmt():
+            stmts.append(self.getLine())
+            types.append(self.getStmtType())
+
+        for child in self.children:
+            c_stmts, c_types = child.get_stmt_types()
+            stmts.extend(c_stmts)
+            types.extend(c_types)
+        return stmts, types
+
+
 
 # used to test from/toString
 # s = "( PROGRAM \n\t( STMT_LIST ,None,0:\n\t\t( STMT ,1,0:\n\t\t\t( FUNC_DEF \n\t\t\t\t( Func_Name \n\t\t\t\t\t( 'EXAMPLE-METHOD' )\n\t\t\t\t( Open_Paren \n\t\t\t\t\t( '(' )\n\t\t\t\t( ARG_LIST \n\t\t\t\t\t( ARG \n\t\t\t\t\t\t( EXPR \n\t\t\t\t\t\t\t( Name \n\t\t\t\t\t\t\t\t( 'x' ))))\n\t\t\t\t( Close_Paren \n\t\t\t\t\t( ')' )\n\t\t( STMT_LIST ,None,1:\n\t\t\t( STMT ,2,1:\n\t\t\t\t( IF \n\t\t\t\t\t( If_Keyword \n\t\t\t\t\t\t( 'If' )\n\t\t\t\t\t( EXPR\n\t\t\t\t\t\t( COMP_EXPR\n\t\t\t\t\t\t\t( EXPR\n\t\t\t\t\t\t\t\t( Name\n\t\t\t\t\t\t\t\t\t( 'x'))\n\t\t\t\t\t\t\t( COMP_OP\n\t\t\t\t\t\t\t\t( Comp_LE\n\t\t\t\t\t\t\t\t\t( '<'))\n\t\t\t\t\t\t\t( EXPR\n\t\t\t\t\t\t\t\t( Int_Literal\n\n\t\t\t\t\t\t\t\t\t( '10'))))\n\t\t\t( STMT_LIST ,None,2:\n\t\t\t\t( STMT ,3,2:\n\t\t\t\t\t( EXPR_STMT\n\t\t\t\t\t\t( CALL\n\t\t\t\t\t\t\t( Func_Name\n\t\t\t\t\t\t\t\t( 'print'\n\t\t\t\t\t\t\t( ARG_LIST\n\t\t\t\t\t\t\t\t( ARG\n\t\t\t\t\t\t\t\t\t( EXPR\n\t\t\t\t\t\t\t\t\t\t( Name\n\t\t\t\t\t\t\t\t\t\t\t( 'x' ))))))))))))))))))))))))))"

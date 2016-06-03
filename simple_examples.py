@@ -1,5 +1,6 @@
 from tree import Tree
 import test_utils
+import parser_utils
 
 def add_two_numbers():
 	"""
@@ -28,6 +29,13 @@ def add_two_numbers_stmts():
 	return lines
 
 #print add_two_numbers().toString()
+# productions = {stmt_type: [] for stmt_type in parser_utils.STMT_TYPES}
+# parser_utils.trees2productions([add_two_numbers()], productions)
+# for p in productions:
+# 	p_strs = []
+# 	for r in productions[p]:
+# 		p_strs.append(r.unicode_repr())
+# 	print p + " : [" + "; ".join(p_strs) + "]"
 
 def print_to_number():
 	"""
@@ -53,3 +61,9 @@ def print_to_number():
 	return Tree("PROGRAM", children=[prog_body])
 
 #print print_to_number().toString()
+def print_to_number_stmts():
+	lines = []
+	lines.append("PRINT-TO-NUMBER(N)")
+	lines.append("\tfor x = 0 to N")
+	lines.append("\t\tprint x")
+	return lines
