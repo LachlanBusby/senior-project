@@ -20,15 +20,22 @@ def simple_test2():
 	parser = PseudoParser.train(trees=simple_trees)
 	stmts = simple_examples.print_to_number_stmts()
 	result = parser.parse(stmts)
+	return result
 	print result.toString()
 
-def lollify_test():
+def lollify_test1():
 	tree = simple_test1()
 	print tree.toString()
 	ast = lollify_root(tree)
 	print ast
 	emit_pycode(ast, None)
 
-lollify_test()
+def lollify_test2():
+	tree = simple_test2()
+	print tree.toString()
+	ast = lollify_root(tree)
+	print ast
+	emit_pycode(ast, None)
+
+lollify_test2()
 #simple_test1()
-#simple_test2()

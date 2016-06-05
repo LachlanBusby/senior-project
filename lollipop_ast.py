@@ -165,6 +165,12 @@ class Constant(Expression):
 	def printnode(self, indent):
 		return self.__class__.__name__ + "('" + str(self.value) + "')"
 
+	def __eq__(self, other):
+		return self.value == other.value
+
+	def __ne__(self, other):
+		return self.value != other.value
+
 class Name(Constant):
 	"""
 	Node for names 

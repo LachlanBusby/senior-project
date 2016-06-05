@@ -15,8 +15,29 @@ def register(typename):
         return func
     return decorator
 
+def register_extractor(listtype):
+    def decorator(func):
+        list_extractor[listtype] = func
+        return func
+    return decorator
 
 dispatch = collections.defaultdict(lambda x: lollify_notimplemented(x))
+list_extractor = collections.defaultdict(lambda x: lollify_notimplemented(x))
+
+@register_extractor("EXPR_LIST")
+def extract_exprlist(node):
+	return extract_list_children(node, "EXPR", "EXPR_LIST")
+
+@register_extractor("STMT_LIST")
+def extract_stmtlist(node):
+	return extract_list_children(node, "STMT", "STMT_LIST")
+
+@register_extractor("ARG_LIST")
+def extract_arglist(node):
+	return extract_list_children(node, "ARG", "ARG_LIST")
+
+def extract_children(node):
+	return list_extractor[node.label](node)
 
 def get_child_dict(node):
 	"""
@@ -33,28 +54,22 @@ def extract_list_children(node, label, list_label):
 	"""
 	children = get_child_dict(node)
 	if children.get(list_label) is None:
-		if children.get(label) is None:
-			return []
-		else:
-			return [children[label]]
+		return [] if children.get(label) is None else [children[label]]
 	else:
-		if children.get(label) is None:
-			return extract_list_children(children[list_label], label, list_label)
-		else:
-			return [children[label]] + extract_list_children(children[list_label], label, list_label)
+		return [children[label]] + extract_list_children(children[list_label], label, list_label)
 
 def lollify(node):
 	"""
 	Main dispatch method, eliminates the need for a if-else chain or baking this 
 	into the tree class definition
 	"""
+	print node
 	return dispatch.get(node.label)(node)
 
 def lollify_root(root):
 	"""
 	Clients should use this method to convert tree into AST
 	"""
-	print root
 	return lollify(root)
 
 @register("STMT")
@@ -67,9 +82,13 @@ def lollify_expr(node):
 
 @register("STMT_LIST")
 def lollify_stmtlist(node):
-	stmts = extract_list_children(node, "STMT", "STMT_LIST")
-	print stmts
+	stmts = extract_children(node)
 	return Statements([lollify(stmt) for stmt in stmts])
+
+@register("EXPR_LIST")
+def lollify_stmtlist(node):
+	stmts = extract_children(node)
+	return Expressions([lollify(stmt) for stmt in stmts])
 
 @register("PROGRAM")
 def lollify_program(node):
@@ -84,7 +103,7 @@ def lollify_functiondef(node):
 
 @register("ARG_LIST")
 def lollify_arglist(node):
-	args = extract_list_children(node, "ARG", "ARG_LIST")
+	args = extract_children(node)
 	return Arguments([lollify(arg) for arg in args])
 
 @register("ARG")
@@ -105,8 +124,11 @@ def lollify_augassign(node):
 
 @register("FOR_START")
 def lollify_forstart(node):
-	children = get_child_dict(node)
-	return lollify(children["Name"]), lollify(children["EXPR"])
+	if node.children[0].label == "ASSIGN":
+		children = get_child_dict(node.children[0])
+		return lollify(children["Name"]), lollify(children["EXPR"])
+	elif node.children[0].label == "EXPR":
+		return lollify(node.children[0])
 
 @register("FOR_END")
 def lollify_forend(node):
@@ -125,7 +147,7 @@ def lollify_forrange(node):
 	return ForRange(target, 
 					start, 
 					lollify(children["FOR_END"]),
-					IntLiteral(1) if children.get("FOR_OPERATION") is None else lollify(children["FOR_OPERATION"]), # Hard coding increment for now, not sure which child has this info
+					IntLiteral(1) if children.get("FOR_OPERATION") is None else lollify(children["FOR_OPERATION"]),
 					lollify(children["STMT_LIST"]))
 
 @register("FOR_END")
@@ -135,7 +157,7 @@ def lollify_forstart(node):
 
 @register("FOR_EACH")
 def lollify_foreach(node):
-	pass
+	raise NotImplementedError()
 
 @register("WHILE")
 def lollify_while(node):
@@ -145,11 +167,12 @@ def lollify_while(node):
 
 @register("IF")
 def lollify_if(node):
-	pass
+	raise NotImplementedError()
 
 @register("EXPR_STMT")
 def lollify_exprstmt(node):
-	return ExprStmt(node.children[1])
+	children = get_child_dict(node)
+	return ExprStmt(lollify(children["EXPR"]))
 
 @register("BREAK")
 def lollify_break(node):
@@ -168,16 +191,17 @@ def lollify_return(node):
 
 @register("CALL")
 def lollify_call(node):
-	pass
+	children = get_child_dict(node)
+	return Call(lollify(children["Func_Name"]), lollify(children["ARG_LIST"]))
 
 '''
 @register(DynamicCall)
 def lollify_dynamiccall(node):
-	pass
+	raise NotImplementedError()
 
 @register(Attribute)
 def lollify_attr(node):
-	pass
+	raise NotImplementedError()
 '''
 
 @register("Func_Name")
@@ -227,6 +251,7 @@ def lollify_compareop(node):
 				 	 lollify(node.children[2])))
 
 @register("BIN_OP")
+@register("Bin_Op")
 def lollify_binoperator(node):
 	return lollify(node.children[0])
 

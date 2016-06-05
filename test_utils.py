@@ -198,7 +198,7 @@ def continue_tree(indent=0,line=1):
 	return Tree("STMT", indent, line, children=[cont_tree])
 
 def expr_stmt_tree(expr, indent=0, line=1):
-	return Tree("STMT", indent, line, children=[expr])
+	return Tree("STMT", indent, line, children=[Tree("EXPR_STMT", indent, line, children=[expr])])
 
 #print func_def_tree("TESTING").toString()
 #print func_def_tree("TESTING", ["a", "b"]).toString()

@@ -79,10 +79,19 @@ def pycode_augassign(self, indent):
 @register(ForRange)
 def pycode_forrange(self, indent):
 	pystr = "for " + code(self.target, indent)
-	pystr += " in range(" + code(self.start, indent)
-	pystr += ", " + code(self.end, indent)
-	if (type(self.inc) != NilExpression):
+	pystr += " in range("
+
+	#start
+	if self.start != IntLiteral(0):
+		pystr += code(self.start, indent) + ", " 
+
+	#End
+	pystr += code(self.end, indent)
+	
+	# increment
+	if (self.inc != IntLiteral(1)):
 		pystr += ", " + code(self.inc, indent)
+
 	pystr += "):\n"
 	return pystr + code(self.body, indent + 1)
 
@@ -126,13 +135,18 @@ def pycode_return(self, indent):
 	return "return " + code(self.expr, indent) + "\n"
 
 @register(Call)
-def pycode_call(self, indent):
-	pystr = code(self.name, indent) + "("
+def pycode_call(self, indent):	
+	args = ""
 	if len(self.params) > 0:
-		pystr += code(self.params[0], indent)
+		args += code(self.params[0], indent)
 		for param in self.params[1:]:
-			pystr += ", " + code(param, indent)
-	return pystr + ")"
+			args += ", " + code(param, indent)
+
+	fn_name = code(self.name, indent)
+	if self.name == Name("print"):
+		return fn_name + " " + args 
+	else:
+		return fn_name + "(" + args + ")"
 
 @register(DynamicCall)
 def pycode_dynamiccall(self, indent):

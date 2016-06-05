@@ -132,6 +132,7 @@ def trees2productions(trees, prods):
         stmt_list_prods(t, prods)
 
 def stmt_prods(tree, prods):
+    print tree, prods
     stmt_type = tree.getStmtType()
     if stmt_type is not None:
         prods[stmt_type].extend(tree.stmt_productions())
