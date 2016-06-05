@@ -20,7 +20,10 @@ def register(typename):
 dispatch = collections.defaultdict(lambda x, y: pycode_notimplemented(x, y))
 
 def code(node, indent):
-	return dispatch.get(type(node))(node, indent)
+	s = dispatch.get(type(node))(node, indent)
+	#print s
+	#print "Coding %s, %s: " %(type(node), node)
+	return s
 
 def emit_pycode(root, filename):
 #	with f as open(filename):
@@ -31,13 +34,15 @@ def emit_pycode(root, filename):
 def pycode_stmtlist(self, indent):
 	pystr = ""
 	for node in self:
-		str = code(node, indent)
-		pystr += get_indent(indent) + str
+		s = code(node, indent)
+		pystr += get_indent(indent) + s
 	return pystr
 
 @register(Program)
 def pycode_program(self, indent):
-	return code(self.statements, indent)
+	pystr = code(self.statements, indent)
+	return pystr
+
 
 @register(FunctionDef)
 def pycode_functiondef(self, indent):

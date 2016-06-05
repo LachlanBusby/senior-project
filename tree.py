@@ -18,7 +18,7 @@ class Tree:
         self.parent = parent
 
     def __repr__(self):
-        print "Node(label=" + self.label + ", " + "children=" + str(self.children) + ")"
+        return "Node(label=" + self.label + ", " + "children=" + str([child.label for child in self.children]) + ")"
 
     def getChildren(self):
         return self.children

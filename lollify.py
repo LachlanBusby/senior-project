@@ -33,9 +33,15 @@ def extract_list_children(node, label, list_label):
 	"""
 	children = get_child_dict(node)
 	if children.get(list_label) is None:
-		return [children[label]]
+		if children.get(label) is None:
+			return []
+		else:
+			return [children[label]]
 	else:
-		return [children[label]] + extract_list_children(children[list_label], label, list_label)
+		if children.get(label) is None:
+			return extract_list_children(children[list_label], label, list_label)
+		else:
+			return [children[label]] + extract_list_children(children[list_label], label, list_label)
 
 def lollify(node):
 	"""
@@ -48,6 +54,7 @@ def lollify_root(root):
 	"""
 	Clients should use this method to convert tree into AST
 	"""
+	print root
 	return lollify(root)
 
 @register("STMT")
@@ -61,6 +68,7 @@ def lollify_expr(node):
 @register("STMT_LIST")
 def lollify_stmtlist(node):
 	stmts = extract_list_children(node, "STMT", "STMT_LIST")
+	print stmts
 	return Statements([lollify(stmt) for stmt in stmts])
 
 @register("PROGRAM")
@@ -71,12 +79,12 @@ def lollify_program(node):
 def lollify_functiondef(node):
 	children = get_child_dict(node)
 	return FunctionDef(lollify(children["Func_Name"]),
-					   lollify(children["ARG_LIST"],
-					   lollify(children["STMT_LIST"])))
+					   lollify(children["ARG_LIST"]),
+					   lollify(children["STMT_LIST"]))
 
 @register("ARG_LIST")
 def lollify_arglist(node):
-	args = extract_list_children("ARG", "ARG_LIST")
+	args = extract_list_children(node, "ARG", "ARG_LIST")
 	return Arguments([lollify(arg) for arg in args])
 
 @register("ARG")
@@ -92,7 +100,7 @@ def lollify_assign(node):
 def lollify_augassign(node):
 	children = get_child_dict(node)
 	return AugAssign(lollify(children["Name"]),
-					 lollify(children["Bin_Op"]),
+					 lollify(children["BIN_OP"]),
 					 lollify(children["EXPR"]))
 
 @register("FOR_START")
@@ -141,19 +149,22 @@ def lollify_if(node):
 
 @register("EXPR_STMT")
 def lollify_exprstmt(node):
-	pass
+	return ExprStmt(node.children[1])
 
 @register("BREAK")
 def lollify_break(node):
-	pass
+	return Break()
 
 @register("CONTINUE")
 def lollify_continue(node):
-	pass
+	return Continue()
 
 @register("RETURN")
 def lollify_return(node):
-	pass
+	if len(node.children) > 0:
+		return Return(lollify(node.children[1]))
+	else:
+		return Return(NilExpression())
 
 @register("CALL")
 def lollify_call(node):
@@ -192,7 +203,6 @@ def lollify_boolliteral(node):
 
 @register("BIN_EXPR")
 def lollify_binop(node):
-	print node
 	return BinOp(lollify(node.children[0]), 
 				 lollify(node.children[1]),
 				 lollify(node.children[2]))
@@ -216,7 +226,7 @@ def lollify_compareop(node):
 				 	 lollify(node.children[1],
 				 	 lollify(node.children[2])))
 
-@register("Bin_Op")
+@register("BIN_OP")
 def lollify_binoperator(node):
 	return lollify(node.children[0])
 

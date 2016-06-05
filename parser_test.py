@@ -1,5 +1,6 @@
 from pseudo_parser import PseudoParser
 from lollify import *
+from python_codegen import *
 import simple_examples
 
 def simple_test1():
@@ -23,7 +24,10 @@ def simple_test2():
 
 def lollify_test():
 	tree = simple_test1()
-	print lollify_root(tree)
+	print tree.toString()
+	ast = lollify_root(tree)
+	print ast
+	emit_pycode(ast, None)
 
 lollify_test()
 #simple_test1()
