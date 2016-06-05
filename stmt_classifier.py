@@ -8,7 +8,7 @@ from sklearn.pipeline import Pipeline
 class StmtClassifier:
 
 	def __init__(self):
-		self.clf = Pipeline([('vect', CountVectorizer(lowercase=False)),
+		self.clf = Pipeline([('vect', CountVectorizer(input='content', lowercase=False, binary=True)),
 							('tfidf', TfidfTransformer()),
 							('clf', MultinomialNB())])
 
@@ -19,7 +19,7 @@ class StmtClassifier:
 		return self.clf.predict(stmts)
 
 	def classify_stmt(self, stmt):
-		sorted_probs = get_stmt_probs(stmt)
+		sorted_probs = self.get_stmt_probs(stmt)
 		return sorted_probs[0][0]
 
 	# returns list of (type, prob) tuples sorted by prob in ascending order

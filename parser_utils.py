@@ -1,16 +1,61 @@
 from tree import Tree
 import nltk.grammar
+from nltk.tokenize import wordpunct_tokenize
+
+STMT_TYPES = ["FUNC_DEF", "RETURN", "ASSIGN", "AUG_ASSIGN", "FOR_RANGE", "FOR_EACH", "WHILE", "IF", "BREAK", "CONTINUE", "EXPR_STMT"]
+ROOT_TYPE = "PROGRAM"
+
+def convert_nltk_tree(t):
+    if not isinstance(t, nltk.Tree):
+        return Tree(t)
+    converted = Tree(t.label())
+    for c in t:
+        child = convert_nltk_tree(c)
+        child.parent = converted
+        converted.children.append(child)
+    return converted
 
 # see NLTK WordPunctTokenizer
 def tokenize(stmt):
-    return wordpunct_tokenize(stmt)
+    tokens = wordpunct_tokenize(stmt)
+    return fix_hyphens(tokens)
 
+def fix_hyphens(tokens):
+    if len(tokens) < 3:
+        return tokens
+
+    new_tokens = [tokens[0]]
+    i = 1
+    while i < len(tokens):
+        tok = tokens[i]
+        if i+1 < len(tokens) and tok == '-' and new_tokens[-1].isupper() and tokens[i+1].isupper():
+            new_tokens[-1] = new_tokens[-1] + "-" + tokens[i+1]
+            i += 2 # skip tokens[i+1]
+        else:
+            new_tokens.append(tok)
+            i += 1
+    return new_tokens
 
 VAR_SUB = "___VAR___"
 INT_SUB = "___INT_LIT___"
 FLOAT_SUB = "___FLOAT_LIT___"
 STR_SUB = "___STR_LIT___"
 
+def preprocess_trees(trees):
+    subs = []
+    for t in trees:
+        orig_yield = t.getYield()
+        sub_yield, t_subs = substitute_literals(orig_yield)
+        t.setWords(sub_yield)
+        subs.append(t_subs)
+    return trees, subs
+
+def postprocess_trees(trees, substitutions):
+    for idx, t in enumerate(trees):
+        sub_yield = t.getYield()
+        orig_yield = restore_literals(sub_yield, substitutions[idx])
+        t.setWords(orig_yield)
+    return trees
 
 def substitute_literals(tokens):
     subs = {}
@@ -37,8 +82,9 @@ def restore_literals(tokens, substitutions):
 def is_var(token):
     """ identifies one letter tokens that are probably variable names """
     """ excludes actual one letter words ("a" and "I") """
-    return False if len(t) > 0 or not t.isalpha()
-    return True if t != "a" and t != "I"
+    if len(token) > 0 or not token.isalpha():
+        return False 
+    return (token != "a" and token != "I")
 
 def is_int(token):
     """ identifies numeric constants """
@@ -83,23 +129,31 @@ def trees2productions(trees, prods):
     """ fills in map of productions for each statement type """
     for t in trees:
         stmt_list = t.children[0] if not t.isStmtList() else t # t is either program or stmt_list
-        stmt_list_prods(tree, prods)
+        stmt_list_prods(t, prods)
 
 def stmt_prods(tree, prods):
     stmt_type = tree.getStmtType()
-    return if stmt_type is None
-    prods[stmt_type].extend(tree.line_productions())
-    
-    body = tree.getBodyStmts()
-    stmt_list_prods(body, prods) if body is not None
+    if stmt_type is not None:
+        prods[stmt_type].extend(tree.stmt_productions())
+        body = tree.getStmtBody()
+        if body is not None:
+            stmt_list_prods(body, prods) 
 
 def stmt_list_prods(tree, prods):
     for child in tree.children:
-        if child.isStmt():
-            stmt_prods(tree, prods)
-        elif child.isStmtList():
-            stmt_list_prods(tree, prods)
+        if child.label == "STMT":
+            stmt_prods(child, prods)
+        elif child.label == "STMT_LIST":
+            stmt_list_prods(child, prods)
 
+def trees2stmts(trees):
+    stmts = []
+    types = []
+    for t in trees:
+        t_stmts, t_types = t.get_stmt_types()
+        stmts.extend(t_stmts)
+        types.extend(t_types)
+    return stmts, types
 
 # Non-Terminals are ALL_CAPS
 # Pre-Terminals are Upper_Camel_Case
@@ -137,7 +191,7 @@ SPECIFIC_NTS = {"FUNC_DEF" : FUNC_DEF_NTS,
                 "CONTINUE" : CONTINUE_NTS,
                 "EXPR_STMT" : EXPR_STMT_NTS}
 
-BODY_CONTAINING_STMTS = {"FUNC_DEF", "FOR_RANGE", "FOR_EACH", "WHILE", "IF"}
+BODY_CONTAINING_STMTS = ["FUNC_DEF", "FOR_RANGE", "FOR_EACH", "WHILE", "IF"]
 
 def get_nonterminals(stmt_type):
     nts_str = SHARED_NTS
@@ -145,3 +199,6 @@ def get_nonterminals(stmt_type):
     if len(specific) > 0:
         nts_str += "," + specific
     return nltk.grammar.nonterminals(nts_str)
+
+def shouldHaveBody(stmt_type):
+    return stmt_type in BODY_CONTAINING_STMTS

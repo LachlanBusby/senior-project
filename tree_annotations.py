@@ -29,7 +29,7 @@ class TreeAnnotations:
 		children.append(self.binarizeTree(leftTree))
 		if numChildrenGenerated < len(tree.getChildren()) - 1:
 			rightTree = self.binarizeTreeHelper(tree, numChildrenGenerated + 1, intermediateLabel + "_" + leftTree.getLabel())
-			children.append(rightTree)
+		children.append(rightTree)
 		return Tree(intermediateLabel, children)
 
 	def unAnnotateTree(self, annotatedTree):

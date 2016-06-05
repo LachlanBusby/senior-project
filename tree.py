@@ -1,5 +1,6 @@
 #!/usr/bin/python
 import logging
+import nltk
 
 from constituent import Constituent
 
@@ -9,11 +10,11 @@ class Tree:
     Original Java Code by Dan Klein."""
 
     # The leaf constructor
-    def __init__(self, label, indent, line, children=[], parent=None):
+    def __init__(self, label, indent=-1, line=-1, children=None, parent=None):
         self.label = label
         self.indent = indent
         self.line = line
-        self.children = children
+        self.children = children if children is not None else []
         self.parent = parent
 
     def getChildren(self):
@@ -48,7 +49,9 @@ class Tree:
 
     # Returns true at the word(leaf) level of a tree
     def isLeaf(self):
-        return self.children is None # is children ever None??
+        if self.label == "STMT" or self.label == "STMT_LIST":
+            return False
+        return len(self.children) == 0 # is children ever None??
 
     # Returns true level of non-terminals which are directly above
     # single words(leafs)
@@ -72,7 +75,6 @@ class Tree:
                 logging.error("STMT_LIST nodes should have at most 2 children.")
             return True
         return False
-
 
     def isProgram(self):
         if self.label == "PROGRAM":
@@ -103,6 +105,22 @@ class Tree:
                 return child 
         return None
 
+    def getStmtBody(self):
+        if self.isStmt() and len(self.children) == 1:
+            stmt_child = self.children[0]
+            return stmt_child.getChild("STMT_LIST")
+        return None
+
+    def getChild(self, label, index=0):
+        """
+        returns first child after specified index with the desired label
+        returns None if no child is found with that label
+        """
+        for c in self.children[index:]:
+            if c.label == label:
+                return c
+        return None
+
     def getLine(self):
         """ 
         if the node is a STMT node, returns the yield 
@@ -110,7 +128,7 @@ class Tree:
         """
         if not self.isStmt():
             return None 
-        return self.getYield(True)
+        return " ".join(self.getYield(True))
 
 
     # Returns a list of words at the leafs of this tree gotten by
@@ -248,22 +266,38 @@ class Tree:
                 built_trees.append((new_tree, str_indent))
         return root
 
+### TODO ###
+    # @staticmethod
+    # def fromStringV2(string):
+    #     lines = string.split('\n')
+    #     built_trees = []
+    #     root = None
+    #     for l in lines:
+    #         stripped = l.lstrip('\t')
+    #         indent = len(l) - stripped
+    #         stripped = l.lstrip('(')
+
     # Returns a string representation of this tree using bracket notation.
     def toString(self):
         return self.toStringHelper(0)
 
     def toStringHelper(self, nindent):
-        string = ''
-        if not self.isLeaf():
-            string += '(' + self.label
-        if self.indent != -1:
-            string += ',' + str(self.indent) + ',' + str(self.line)
-        if not self.isLeaf():
-            
-            print self.label + ": " + str(self.children) + "\n"
-            for child in self.children:
-                string += '\n' + ('\t' * (nindent + 1)) + child.toStringHelper(nindent+1)
+        string = '' + ('\t' * nindent)
+        
+        if self.isLeaf():
+            string += "(\'" + self.label + "\')"
+        else:
+            string += "(" + self.label
+            if self.label == "STMT_LIST":
+                string += ',' + str(self.indent) + ':'
+            elif self.label == "STMT":
+                string += ',' + str(self.indent) + ',' + str(self.line) + ':'
+        
+            if len(self.children) > 0:
+                for child in self.children:
+                    string += '\n' + child.toStringHelper(nindent+1)
             string += ')'
+
         return string
 
     def deepCopy(self, tree=None):
@@ -274,39 +308,95 @@ class Tree:
             childrenCopies.append(self.deepCopy(child))
         return Tree(tree.getLabel(), childrenCopies)
 
+    def stmt_productions(self):
+        if not self.isStmt():
+            return []
+
+        prods = []
+        head = self.children[0]
+
+        rhs = []
+        for child in head.children:
+            if child.isStmtList():
+                continue
+            if child.isLeaf():
+                rhs.append(child.label)
+            else:
+                rhs.append(nltk.grammar.Nonterminal(child.label))
+            prods.extend(child.productions_v2())
+
+        lhs = nltk.grammar.Nonterminal(head.label)
+        prods.append(nltk.grammar.Production(lhs, rhs))
+        return prods
+
+    def productions_v2(self):
+        prods = []
+        if self.isLeaf():
+            return prods
+
+        rhs = []
+        for child in self.children:
+            if child.isLeaf():
+                rhs.append(child.label)
+            else:
+                rhs.append(nltk.grammar.Nonterminal(child.label))
+            prods.extend(child.productions_v2())
+
+        if not (self.isProgram() or self.isStmt() or self.isStmtList()):
+            lhs = nltk.grammar.Nonterminal(self.label)
+            prods.append(nltk.grammar.Production(lhs, rhs))
+        return prods
+
     def productions(self):
         prods = []
-        if self.isProgram():
+        if self.label == "PROGRAM":
             prods.extend(self.children[0].productions())
-        elif self.isStmtList():
+        elif self.label == "STMT_LIST":
             for child in self.children:
                 prods.extend(child.productions())
-        elif self.isStmt():
+        elif self.label == "STMT":
             prods = self.children[0].productions()
-        elif not self.isLeaf():
+        elif len(self.children) > 0:
             rhs = []
-            for child in children:
+            for child in self.children:
                 prods.extend(child.productions())
                 rhs_elem = child.label if child.isLeaf() else nltk.grammar.Nonterminal(child.label)
                 rhs.append(rhs_elem)
             prods.append(nltk.grammar.Production(nltk.grammar.Nonterminal(self.label), rhs))
         return prods
 
+
     def line_productions(self):
         if not self.isStmt():
-            return None 
+            return None
         stmt_head = self.children[0]
         
         rhs = []
         prods = []
-        for child in children:
+        for child in stmt_head.children:
             if child.isStmtList():
                 continue
             prods.extend(child.productions())
             rhs_elem = child.label if child.isLeaf() else nltk.grammar.Nonterminal(child.label)
             rhs.append(rhs_elem)
-        prods.append(nltk.grammar.Production(nltk.grammar.Nonterminal(self.label), rhs))
+        prods.append(nltk.grammar.Production(nltk.grammar.Nonterminal(stmt_head.label), rhs))
         return prods
+
+    def get_stmt_types(self):
+        stmts = []
+        types = []
+
+        if self.isStmt():
+            stmts.append(self.getLine())
+            types.append(self.getStmtType())
+
+        for child in self.children:
+            c_stmts, c_types = child.get_stmt_types()
+            stmts.extend(c_stmts)
+            types.extend(c_types)
+        return stmts, types
+
+
 
 # used to test from/toString
 # s = "( PROGRAM \n\t( STMT_LIST ,None,0:\n\t\t( STMT ,1,0:\n\t\t\t( FUNC_DEF \n\t\t\t\t( Func_Name \n\t\t\t\t\t( 'EXAMPLE-METHOD' )\n\t\t\t\t( Open_Paren \n\t\t\t\t\t( '(' )\n\t\t\t\t( ARG_LIST \n\t\t\t\t\t( ARG \n\t\t\t\t\t\t( EXPR \n\t\t\t\t\t\t\t( Name \n\t\t\t\t\t\t\t\t( 'x' ))))\n\t\t\t\t( Close_Paren \n\t\t\t\t\t( ')' )\n\t\t( STMT_LIST ,None,1:\n\t\t\t( STMT ,2,1:\n\t\t\t\t( IF \n\t\t\t\t\t( If_Keyword \n\t\t\t\t\t\t( 'If' )\n\t\t\t\t\t( EXPR\n\t\t\t\t\t\t( COMP_EXPR\n\t\t\t\t\t\t\t( EXPR\n\t\t\t\t\t\t\t\t( Name\n\t\t\t\t\t\t\t\t\t( 'x'))\n\t\t\t\t\t\t\t( COMP_OP\n\t\t\t\t\t\t\t\t( Comp_LE\n\t\t\t\t\t\t\t\t\t( '<'))\n\t\t\t\t\t\t\t( EXPR\n\t\t\t\t\t\t\t\t( Int_Literal\n\n\t\t\t\t\t\t\t\t\t( '10'))))\n\t\t\t( STMT_LIST ,None,2:\n\t\t\t\t( STMT ,3,2:\n\t\t\t\t\t( EXPR_STMT\n\t\t\t\t\t\t( CALL\n\t\t\t\t\t\t\t( Func_Name\n\t\t\t\t\t\t\t\t( 'print'\n\t\t\t\t\t\t\t( ARG_LIST\n\t\t\t\t\t\t\t\t( ARG\n\t\t\t\t\t\t\t\t\t( EXPR\n\t\t\t\t\t\t\t\t\t\t( Name\n\t\t\t\t\t\t\t\t\t\t\t( 'x' ))))))))))))))))))))))))))"
