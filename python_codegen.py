@@ -28,7 +28,9 @@ def code(node, indent):
 def emit_pycode(root, filename):
 #	with f as open(filename):
 #		F = f
-	print code(root, 0)
+	code_str = code(root, 0)
+	print code_str
+	return code_str
 
 @register(Statements)
 def pycode_stmtlist(self, indent):
