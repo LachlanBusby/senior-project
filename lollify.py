@@ -63,7 +63,6 @@ def lollify(node):
 	Main dispatch method, eliminates the need for a if-else chain or baking this 
 	into the tree class definition
 	"""
-	print node
 	return dispatch.get(node.label)(node)
 
 def lollify_root(root):

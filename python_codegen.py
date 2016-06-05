@@ -29,7 +29,7 @@ def emit_pycode(root, filename):
 #	with f as open(filename):
 #		F = f
 	code_str = code(root, 0)
-	print code_str
+#	print code_str
 	return code_str
 
 @register(Statements)
@@ -87,7 +87,7 @@ def pycode_forrange(self, indent):
 
 	#End
 	pystr += code(self.end, indent)
-	
+
 	# increment
 	if (self.inc != IntLiteral(1)):
 		pystr += ", " + code(self.inc, indent)
@@ -194,10 +194,12 @@ def pycode_compareop(self, indent):
 @register(StringLiteral)
 @register(FloatLiteral)
 @register(IntLiteral)
-@register(Name)
 def pycode_const(self, indent):
 	return str(self.value)
 
+@register(Name)
+def pycode_name(self, indent):
+	return str(self.value).replace("-", "_").lower()
 
 @register(And)
 def pycode_and(self, indent):
