@@ -1,4 +1,5 @@
 from lollipop_ast import *
+from astutils import register
 from tree import Tree
 import collections
 
@@ -7,6 +8,13 @@ F = None
 
 def lollify_notimplemented(node):
 	raise NotImplementedError("lollify method not implemented for %s" %(node.label))
+
+def register(typename):
+    def decorator(func):
+        dispatch[typename] = func
+        return func
+    return decorator
+
 
 dispatch = collections.defaultdict(lambda x: lollify_notimplemented(x))
 
@@ -52,7 +60,7 @@ def lollify_expr(node):
 
 @register("STMT_LIST")
 def lollify_stmtlist(node):
-	stmts = extract_list_children("STMT", "STMT_LIST")
+	stmts = extract_list_children(node, "STMT", "STMT_LIST")
 	return Statements([lollify(stmt) for stmt in stmts])
 
 @register("PROGRAM")
@@ -109,7 +117,7 @@ def lollify_forrange(node):
 	return ForRange(target, 
 					start, 
 					lollify(children["FOR_END"]),
-					IntLiteral(1) if children.get("FOR_OPERATION") is None else lollify(children["FOR_OPERATION"]) # Hard coding increment for now, not sure which child has this info
+					IntLiteral(1) if children.get("FOR_OPERATION") is None else lollify(children["FOR_OPERATION"]), # Hard coding increment for now, not sure which child has this info
 					lollify(children["STMT_LIST"]))
 
 @register("FOR_END")
@@ -184,9 +192,10 @@ def lollify_boolliteral(node):
 
 @register("BIN_EXPR")
 def lollify_binop(node):
+	print node
 	return BinOp(lollify(node.children[0]), 
-				 lollify(node.children[1],
-				 lollify(node.children[2])))
+				 lollify(node.children[1]),
+				 lollify(node.children[2]))
 
 
 

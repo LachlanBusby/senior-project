@@ -1,6 +1,5 @@
 from lollipop_ast import *
 import collections
-from astutils import register
 
 TAB_SIZE = 4
 F = None
@@ -10,6 +9,13 @@ def get_indent(indent):
 
 def pycode_notimplemented(self, indent):
 	raise NotImplementedError("pycode method not implemented for %s" %type(self))
+
+def register(typename):
+    def decorator(func):
+        dispatch[typename] = func
+        return func
+    return decorator
+
 
 dispatch = collections.defaultdict(lambda x, y: pycode_notimplemented(x, y))
 

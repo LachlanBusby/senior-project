@@ -17,6 +17,9 @@ class Tree:
         self.children = children if children is not None else []
         self.parent = parent
 
+    def __repr__(self):
+        print "Node(label=" + self.label + ", " + "children=" + str(self.children) + ")"
+
     def getChildren(self):
         return self.children
 
