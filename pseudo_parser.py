@@ -79,8 +79,14 @@ class PseudoParser():
                 parentNode = list_tree
 
             tokens = self._tokenize(stmt)
-            stmt_types = self.clf.test([" ".join(tokens)])
-            parse_tree = self.parsers[stmt_types[0]].parse(tokens)
+            stmt_types = self.clf.classify(" ".join(tokens))
+
+            parse_tree = None
+            for t in stmt_types:
+                parse_tree = self.parsers[t].parse(tokens)
+                if parse_tree is not None: break
+            if parse_tree is None:
+                raise ValueError("Something fucked up. None of the parsers recognize this shit.")
 
             stmt_tree = Tree("STMT", indent, line, parent=parentNode)
             parse_tree.parent = stmt_tree

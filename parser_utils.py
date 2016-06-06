@@ -81,10 +81,7 @@ def restore_literals(tokens, substitutions):
 
 def is_var(token):
     """ identifies one letter tokens that are probably variable names """
-    """ excludes actual one letter words ("a" and "I") """
-    if len(token) > 0 or not token.isalpha():
-        return False 
-    return (token != "a" and token != "I")
+    return len(token) == 1 and token.isalpha()
 
 def is_int(token):
     """ identifies numeric constants """

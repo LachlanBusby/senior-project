@@ -9,8 +9,9 @@ class StmtParser(nltk.ViterbiParser):
 	
 	def parse(self, tokens):
 		""" generates parse tree for tokens, assumes literals have already been substituted """
-    	# TODO: add in support for unseen tokens???
-		it = super(StmtParser, self).parse(tokens)
-		for tree in it:
-			return parser_utils.convert_nltk_tree(tree)
-		return None
+		try:
+			it = super(StmtParser, self).parse(tokens)
+			for tree in it:
+				return parser_utils.convert_nltk_tree(tree)
+		except ValueError:
+			return None
