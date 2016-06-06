@@ -65,7 +65,7 @@ def test_args12():
 	return trees, stmts
 
 def test_args13():
-	trees = train_trees_all()
+	trees = train_trees_all(do_not_include=["fibonacci"])
 	stmts = fibonacci_stmts()
 	return trees, stmts
 

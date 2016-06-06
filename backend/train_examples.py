@@ -3,10 +3,14 @@ from test_utils import *
 import parser_utils
 import sys
 
-
-def train_trees_all():
+def train_trees_all(do_not_include=[]):
 	current_module = sys.modules[__name__]
 	trees_names = [fn_name for fn_name in dir(current_module) if fn_name.endswith("_trees")]
+	for tree in trees_names:
+		for name in do_not_include:
+			if tree.startswith(name):
+				trees_names.remove(tree)
+
 	print "All examples: %s" %trees_names
 	return [current_module.__dict__[fn_name]() for fn_name in trees_names]
 
@@ -332,7 +336,7 @@ def if_greater_trees():
 	func_tree = func_def_tree("IF-GREATER-RETURN", ["n"])
 	body_tree = func_tree.getStmtBody()
 	body_tree.children.append(if_stmt_tree)
-	body_tree.children.append(Tree("STMT_LIST", indent=1, line=3, children=[else_ret_tree]))
+	body_tree.children.append(Tree("STMT_LIST", indent=1, children=[else_ret_tree]))
 
 	prog_body = Tree("STMT_LIST", indent=0, line=0, children=[func_tree])
 	return Tree("PROGRAM", children=[prog_body])
@@ -359,7 +363,7 @@ def if_greater_equal_trees():
 	func_tree = func_def_tree("IF-GEQ-RETURN", ["n"])
 	body_tree = func_tree.getStmtBody()
 	body_tree.children.append(if_stmt_tree)
-	body_tree.children.append(Tree("STMT_LIST", indent=1, line=3, children=[else_ret_tree]))
+	body_tree.children.append(Tree("STMT_LIST", indent=1, children=[else_ret_tree]))
 
 	prog_body = Tree("STMT_LIST", indent=0, line=0, children=[func_tree])
 	return Tree("PROGRAM", children=[prog_body])
@@ -376,13 +380,12 @@ def if_equal_trees():
 	func_tree = func_def_tree("IF-EQ-RETURN", ["n"])
 	body_tree = func_tree.getStmtBody()
 	body_tree.children.append(if_stmt_tree)
-	body_tree.children.append(Tree("STMT_LIST", indent=1, line=3, children=[else_ret_tree]))
+	body_tree.children.append(Tree("STMT_LIST", indent=1, children=[else_ret_tree]))
 
 	prog_body = Tree("STMT_LIST", indent=0, line=0, children=[func_tree])
 	return Tree("PROGRAM", children=[prog_body])
 
 def bin_op_call_trees():
-
 	call1 = call_tree("DO-SOMETHING", [var_tree("x")], parens=True, expr_args=True)
 	call2 = call_tree("METHOD", [var_tree("x")], parens=True, expr_args=True)
 	bin = binop_tree(call1, "%", call2)
@@ -403,8 +406,20 @@ def bin_op_call_trees():
 	func_tree = func_def_tree("DUMB-METHOD", ["x", "y"])
 	body_tree = func_tree.getStmtBody()
 	body_tree.children.append(if_stmt_tree)
-	body_tree.children.append(Tree("STMT_LIST", indent=1, line=3, children=[else_ret_tree]))
+	body_tree.children.append(Tree("STMT_LIST", indent=1, line=4, children=[else_ret_tree]))
 
 	prog_body = Tree("STMT_LIST", indent=0, line=0, children=[func_tree])
 	return Tree("PROGRAM", children=[prog_body])
 
+def bin_op_ret_trees():
+	expr1 = binop_tree(var_tree("x"), "*", int_lit_tree("2"))
+	expr2 = binop_tree(var_tree("x"), "-", int_lit_tree("10"))
+	bin = binop_tree(expr1, "+", expr2)
+	ret_tree = return_expr_tree(bin, indent=1, line=2)
+
+	func_tree = func_def_tree("DUMB-METHOD2", ["x"])
+	body_tree = func_tree.getStmtBody()
+	body_tree.children.append(ret_tree)
+
+	prog_body = Tree("STMT_LIST", indent=0, children=[func_tree])
+	return Tree("PROGRAM", children=[prog_body])
