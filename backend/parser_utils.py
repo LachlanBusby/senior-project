@@ -172,26 +172,44 @@ def corpus2trees(corpus):
 #   return [t.productions() for t in trees]
 
 # gets productions line by line, splits by stmt type
-def trees2productions(trees, prods):
-    """ fills in map of productions for each statement type """
+def trees2productions(trees):
+    prods = {stmt_type: [] for stmt_type in STMT_TYPES}
+    expr_prods = []
+
+    # fills in map of productions for each statement type
     for t in trees:
         stmt_list = t.children[0] if not t.isStmtList() else t # t is either program or stmt_list
-        stmt_list_prods(t, prods)
+        stmt_list_prods(t, prods, expr_prods)
 
-def stmt_prods(tree, prods):
+    #adds all expr productions to the end of each stmt production list
+    for stmt_type in STMT_TYPES: prods[stmt_type].extend(expr_prods)
+    return prods
+
+def stmt_prods(tree, prods, expr_prods):
     stmt_type = tree.getStmtType()
     if stmt_type is not None:
-        prods[stmt_type].extend(tree.stmt_productions())
+        stmt_ps, expr_ps = tree.productions()
+        prods[stmt_type].extend(stmt_ps)
+        expr_prods.extend(expr_ps)
         body = tree.getStmtBody()
         if body is not None:
-            stmt_list_prods(body, prods) 
+            stmt_list_prods(body, prods, expr_prods)
 
-def stmt_list_prods(tree, prods):
+def stmt_list_prods(tree, prods, expr_prods):
     for child in tree.children:
         if child.label == "STMT":
-            stmt_prods(child, prods)
+            stmt_prods(child, prods, expr_prods)
         elif child.label == "STMT_LIST":
-            stmt_list_prods(child, prods)
+            stmt_list_prods(child, prods, expr_prods)
+
+def print_productions(prods, trees=None):
+    if trees is not None and len(trees) == 1:
+        print "Tree: "
+        print trees[0].toString()
+        print "\n\n\n"
+    for stmt_type in prods:
+        p_list = ", ".join([ p.unicode_repr() for p in prods[stmt_type]])
+        print stmt_type + ": [" + p_list + "]"
 
 def trees2stmts(trees):
     stmts = []

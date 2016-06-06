@@ -1,9 +1,8 @@
-import parser_utils
+from parser_utils import *
 from tree import Tree
 from stmt_classifier import StmtClassifier
 from stmt_parser import StmtParser
 import nltk
-
 
 class PseudoParser():
     def __init__(self, productions, stmts, stmt_types):
@@ -26,30 +25,26 @@ class PseudoParser():
             with open(filename, 'r') as f:
                 corpus = f.read()
                 print corpus
-            trees = parser_utils.corpus2trees(corpus)
-        trees, subs = parser_utils.preprocess_trees(trees)
-        productions = {stmt_type: [] for stmt_type in parser_utils.STMT_TYPES}
-        parser_utils.trees2productions(trees, productions)
-        # for p in productions:
-        #     p_strs = []
-        #     for r in productions[p]:
-        #        p_strs.append(r.unicode_repr())
-        #     print p + " : [" + "; ".join(p_strs) + "]"
+            trees = corpus2trees(corpus)
 
-        stmts, types = parser_utils.trees2stmts(trees)
+        trees, subs = preprocess_trees(trees)
+        productions = trees2productions(trees)
+        stmts, types = trees2stmts(trees)
+
+        # print_productions(productions, trees)
         return cls(productions, stmts, types)
 
     @staticmethod
     def _tokenize(stmt):
-        tokens = parser_utils.tokenize(stmt)
+        tokens = tokenize(stmt)
         subs = {}
-        tokens, subs = parser_utils.sub_literals(tokens, subs)
-        tokens, subs = parser_utils.guess_func_names(tokens, subs)
+        tokens, subs = sub_literals(tokens, subs)
+        tokens, subs = guess_func_names(tokens, subs)
         return tokens
 
     @staticmethod
     def _setStmtYield(tree, stmt):
-        tokens = parser_utils.tokenize(stmt)
+        tokens = tokenize(stmt)
         tree.setWords(tokens)
         return tree
 

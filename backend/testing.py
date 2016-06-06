@@ -102,6 +102,7 @@ parser.add_argument('test', nargs='?', type=int, choices=range(0,14), default=0,
 parser.add_argument('-p', '--parser', help='Run only the parser tests.', action='store_true')
 parser.add_argument('-v', '--verbose', type=int, choices=range(0,4), default=2, help="Set the level of output. 0 - no output, 1 - source code only, 2 - pseudocode and source code, 3 - all intermediate output")
 parser.add_argument('-t', '--train-all', action='store_true', default=False, help="Train parser on all examples")
+parser.add_argument('-e', '--examples', action='store_true', default=False, help="Print training examples.")
 
 args = parser.parse_args()
 
@@ -124,6 +125,13 @@ args = parser.parse_args()
 # 				 examples[args.test][1](), 
 # 				 args.parser, args.verbose)	
 # exit(0)
+
+if args.examples:
+	print "Training Examples"
+	for t in train_trees_all(do_not_include=["fibonacci"]):
+		print "\n"
+		for s in t.getStmts():
+			print s
 
 if args.test == 0 or args.test == 1:
 	trees, stmts = test_args1()

@@ -277,7 +277,7 @@ def print_even_sum_stmts():
 
 
 def if_less_trees():
-	ret_n_tree = return_tree("n", indent=1, line=3)
+	ret_n_tree = return_tree("n", indent=2, line=3)
 
 	if_stmt_tree = if_tree("n", "<", "10", indent=1, line=2)
 	if_body = if_stmt_tree.getStmtBody()
@@ -302,7 +302,7 @@ def if_less_stmts():
 	return lines
 
 def if_less_equal_trees():
-	ret_n_tree = return_tree("n", indent=1, line=3)
+	ret_n_tree = return_tree("n", indent=2, line=3)
 
 	if_stmt_tree = if_tree("n", "<=", "10", indent=1, line=2)
 	if_body = if_stmt_tree.getStmtBody()
@@ -321,7 +321,7 @@ def if_less_equal_trees():
 	return Tree("PROGRAM", children=[prog_body])
 
 def if_greater_trees():
-	ret_n_tree = return_tree("n", indent=1, line=3)
+	ret_n_tree = return_tree("n", indent=2, line=3)
 
 	expr1 = var_tree("n")
 	expr2 = binop_tree(var_tree("n"), "*", int_lit_tree("2"))
@@ -342,7 +342,7 @@ def if_greater_trees():
 	return Tree("PROGRAM", children=[prog_body])
 
 def if_greater_equal_trees():
-	ret_n_tree = return_tree("n", indent=1, line=3)
+	ret_n_tree = return_tree("n", indent=2, line=3)
 
 	expr1 = var_tree("n")
 	expr2 = int_lit_tree("10")
@@ -369,7 +369,7 @@ def if_greater_equal_trees():
 	return Tree("PROGRAM", children=[prog_body])
 
 def if_equal_trees():
-	ret_n_tree = return_tree("n", indent=1, line=3)
+	ret_n_tree = return_tree("n", indent=2, line=3)
 
 	if_stmt_tree = if_tree("n", "==", "10", indent=1, line=2)
 	if_body = if_stmt_tree.getStmtBody()
@@ -432,7 +432,7 @@ def foo_trees():
 	binop_tree1 = bin_op_val_int("N", "%", "10")
 	call_tree1 = call_tree("BAR", [binop_tree1], parens=True, expr_args=True)
 
-	ret_tree = return_expr_tree(binop_tree1)
+	ret_tree = return_expr_tree(binop_tree1, indent=1, line=2)
 	func_tree = func_def_tree("FOO", ["N"])
 
 	body_tree = func_tree.getStmtBody()

@@ -64,13 +64,19 @@ class Tree:
     def isPhrasal(self):
         return not (self.isLeaf() or self.isPreTerminal())
 
+    def isExpr(self):
+        if self.label == "EXPR":
+            if len(self.children) != 1:
+                logging.error("EXPR nodes should have exactly 1 child.")
+            return True
+        return False
+
     def isStmt(self):
         if self.label == "STMT":
             if len(self.children) != 1:
                 logging.error("STMT nodes should only have 1 child.") 
             return True
         return False
-
 
     def isStmtList(self):
         if self.label == "STMT_LIST":
@@ -139,6 +145,18 @@ class Tree:
             self.children[0].children.append(stmt_body)
         return line
 
+    def getStmts(self):
+        """
+        gets all stmts for a program tree
+        """
+        stmts = []
+        traversal = self.getPreOrderTraversal()
+        for n in traversal:
+            line = n.getLine()
+            if line is not None:
+                line = ('\t' * n.indent) + line
+                stmts.append(line)
+        return stmts
 
     # Returns a list of words at the leafs of this tree gotten by
     # traversing from left to right
@@ -319,79 +337,85 @@ class Tree:
             childrenCopies.append(self.deepCopy(child))
         return Tree(tree.getLabel(), childrenCopies)
 
-    def stmt_productions(self):
+    def productions(self):
         if not self.isStmt():
             return []
+        return self.children[0].productions_helper()
 
-        prods = []
-        head = self.children[0]
+        # prods = []
+        # expr_prods = []
+        #
+        # head = self.children[0]
+        # rhs = []
+        # for child in head.children:
+        #     if child.isStmtList():
+        #         continue
+        #     if child.isLeaf():
+        #         rhs.append(child.label)
+        #     else:
+        #         rhs.append(nltk.grammar.Nonterminal(child.label))
+        #     prods.extend(child.productions_helper())
+        #
+        # lhs = nltk.grammar.Nonterminal(head.label)
+        # prods.append(nltk.grammar.Production(lhs, rhs))
+        # return prods
 
-        rhs = []
-        for child in head.children:
-            if child.isStmtList():
-                continue
-            if child.isLeaf():
-                rhs.append(child.label)
-            else:
-                rhs.append(nltk.grammar.Nonterminal(child.label))
-            prods.extend(child.productions_v2())
-
-        lhs = nltk.grammar.Nonterminal(head.label)
-        prods.append(nltk.grammar.Production(lhs, rhs))
-        return prods
-
-    def productions_v2(self):
-        prods = []
+    def productions_helper(self, prods=[], expr_prods=[], is_expr=False):
         if self.isLeaf():
-            return prods
+            return prods, expr_prods
 
         rhs = []
         for child in self.children:
-            if child.isLeaf():
+            if child.isStmtList():
+                continue
+            elif child.isLeaf():
                 rhs.append(child.label)
             else:
                 rhs.append(nltk.grammar.Nonterminal(child.label))
-            prods.extend(child.productions_v2())
+            prods, expr_prods = child.productions_helper(prods, expr_prods, (is_expr or child.isExpr()))
 
         if not (self.isProgram() or self.isStmt() or self.isStmtList()):
             lhs = nltk.grammar.Nonterminal(self.label)
-            prods.append(nltk.grammar.Production(lhs, rhs))
-        return prods
+            if is_expr or self.isExpr():
+                expr_prods.append(nltk.grammar.Production(lhs, rhs))
+            else:
+                prods.append(nltk.grammar.Production(lhs, rhs))
+        return prods, expr_prods
 
-    def productions(self):
-        prods = []
-        if self.label == "PROGRAM":
-            prods.extend(self.children[0].productions())
-        elif self.label == "STMT_LIST":
-            for child in self.children:
-                prods.extend(child.productions())
-        elif self.label == "STMT":
-            prods = self.children[0].productions()
-        elif len(self.children) > 0:
-            rhs = []
-            for child in self.children:
-                prods.extend(child.productions())
-                rhs_elem = child.label if child.isLeaf() else nltk.grammar.Nonterminal(child.label)
-                rhs.append(rhs_elem)
-            prods.append(nltk.grammar.Production(nltk.grammar.Nonterminal(self.label), rhs))
-        return prods
+    # def productions(self):
+    #     prods = []
+    #     if self.label == "PROGRAM":
+    #         prods.extend(self.children[0].productions())
+    #     elif self.label == "STMT_LIST":
+    #         for child in self.children:
+    #             prods.extend(child.productions())
+    #     elif self.label == "STMT":
+    #         prods = self.children[0].productions()
+    #     elif len(self.children) > 0:
+    #         rhs = []
+    #         for child in self.children:
+    #             prods.extend(child.productions())
+    #             rhs_elem = child.label if child.isLeaf() else nltk.grammar.Nonterminal(child.label)
+    #             rhs.append(rhs_elem)
+    #         prods.append(nltk.grammar.Production(nltk.grammar.Nonterminal(self.label), rhs))
+    #     return prods
 
 
-    def line_productions(self):
-        if not self.isStmt():
-            return None
-        stmt_head = self.children[0]
-        
-        rhs = []
-        prods = []
-        for child in stmt_head.children:
-            if child.isStmtList():
-                continue
-            prods.extend(child.productions())
-            rhs_elem = child.label if child.isLeaf() else nltk.grammar.Nonterminal(child.label)
-            rhs.append(rhs_elem)
-        prods.append(nltk.grammar.Production(nltk.grammar.Nonterminal(stmt_head.label), rhs))
-        return prods
+    # def line_productions(self):
+    #     if not self.isStmt():
+    #         return None
+    #     stmt_head = self.children[0]
+    #
+    #     rhs = []
+    #     prods = []
+    #     for child in stmt_head.children:
+    #         if child.isStmtList():
+    #             continue
+    #         prods.extend(child.productions())
+    #         rhs_elem = child.label if child.isLeaf() else nltk.grammar.Nonterminal(child.label)
+    #         rhs.append(rhs_elem)
+    #     prods.append(nltk.grammar.Production(nltk.grammar.Nonterminal(stmt_head.label), rhs))
+    #     return prods
 
     def get_stmt_types(self):
         stmts = []
