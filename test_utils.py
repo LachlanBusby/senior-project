@@ -232,6 +232,15 @@ def if_binop_tree(var_name, bin_op, intval, comp_op, compval, indent=0, line=1):
 	return Tree("STMT", indent, line, children=[if_tree])
 
 # TODO: else tree
+
+def if_expr_tree(comp_expr, indent=0, line=1):
+	""" default: if [var_name] [comp_op] [comp_val] """
+	if_tree = Tree("IF",children=[])
+	if_tree.children.append(Tree("If_Keyword",children=[Tree("if")]))
+	if_tree.children.append(Tree("EXPR",children=[comp_expr]))
+	if_tree.children.append(Tree("STMT_LIST", indent + 1, line + 1))
+	return Tree("STMT", indent, line, children=[if_tree])
+
 def if_tree(var_name, comp_op, comp_val, indent=0, line=1):
 	""" default: if [var_name] [comp_op] [comp_val] """
 	comp_tree = Tree("COMP_EXPR")

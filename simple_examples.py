@@ -46,7 +46,8 @@ def fibonacci():
 	"""
 	compop_tree1 = test_utils.comp_op_val_int("N", "==", "1")
 	compop_tree2 = test_utils.comp_op_val_int("N", "==", "2")
-	boolop
+	boolop_tree = test_utils.boolop_tree(compop_tree1, "or", compop_tree2)
+	
 
 	call_tree1 = test_utils.call_tree("FIBONACCI", [""])
 	fib_tree1 = test_utils.expr_stmt_tree(call_tree, indent=3, line=4)
