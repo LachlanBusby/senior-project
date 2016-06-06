@@ -128,6 +128,13 @@ def return_tree(var_name, indent=0, line=1):
 	ret_tree.children.append(var_tree(var_name))
 	return Tree("STMT", indent, line, children=[ret_tree])
 
+def return_val_tree(val, indent=0, line=1):
+	""" return [val] """
+	ret_tree = Tree("RETURN")
+	ret_tree.children.append(Tree("Return_Keyword", children=[Tree("return")]))
+	ret_tree.children.append(int_lit_tree(val))
+	return Tree("STMT", indent, line, children=[ret_tree])
+
 def assign_stmt_tree(var_name, var_val, var_type="Int", indent=0, line=1):
 	return Tree("STMT", indent, line, children=[assign_tree(var_name, var_val, var_type)])
 
