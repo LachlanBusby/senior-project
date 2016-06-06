@@ -1,22 +1,15 @@
 from tree import Tree
 from test_utils import *
 import parser_utils
+import sys
 
-def train_trees():
-	trees = [
-		add_two_numbers(),
-		print_to_number(),
-		print_to_number2(),
-		count_to_number(),
-		if_less(),
-		if_less_equal(),
-		if_greater(),
-		if_greater_equal(),
-		if_equal()
-	]
-	return trees
+def train_trees_all():
+	current_module = sys.modules[__name__]
+	trees_names = [fn_name for fn_name in dir(current_module) if fn_name.endswith("_trees")]
+	print "All examples: %s" %trees_names
+	return [current_module.__dict__[fn_name]() for fn_name in trees_names]
 
-def add_two_numbers():
+def add_two_numbers_trees():
 	"""
 	ADD-TWO-NUMBERS(a, b)
 		c = a + b
@@ -51,7 +44,7 @@ def add_two_numbers_stmts():
 # 		p_strs.append(r.unicode_repr())
 # 	print p + " : [" + "; ".join(p_strs) + "]"
 
-def fibonacci():
+def fibonacci_trees():
 	"""
 	FIBONACCI(N):
 		if N == 1 or N == 2:
@@ -99,7 +92,7 @@ def add_two_numbers_stmts():
 	lines.append("\treturn c")
 	return lines
 
-def print_to_number():
+def print_to_number_trees():
 	"""
 	PRINT-TO-NUMBER(N)
 		for x = 0 to N
@@ -122,7 +115,7 @@ def print_to_number():
 	prog_body = Tree("STMT_LIST", indent=0, line=0, children=[func_tree])
 	return Tree("PROGRAM", children=[prog_body])
 
-def count_to_number():
+def count_to_number_trees():
 	"""
 	COUNT-TO-TEN(start)
 	    x = start
@@ -161,7 +154,7 @@ def count_to_number_stmts():
 	lines.append("\tprint x")
 	return lines
 
-def print_to_number2():
+def print_even_numbers_trees():
 	"""
 	PRINT-TO-NUMBER2(N)
 		for x = 0 to N
@@ -204,7 +197,7 @@ def print_to_number_stmts():
 	lines.append("\t\tprint x")
 	return lines
 
-def print_to_number2_stmts():
+def print_even_numbers_stmts():
 	lines = []
 	lines.append("PRINT-TO-NUMBER2(N)")
 	lines.append("\tfor x = 0 to N")
@@ -215,7 +208,7 @@ def print_to_number2_stmts():
 
 
 # is_even
-def check_is_even():
+def check_is_even_trees():
 	"""
 	IS-EVEN(N)
 		return (N % 2) == 0
@@ -242,7 +235,7 @@ def check_is_even_stmts():
 	return lines
 
 
-def print_even_sum():
+def print_even_sum_trees():
 	"""
 	PRINT-EVEN-SUM(x, y)
 		z = x + y
@@ -278,7 +271,7 @@ def print_even_sum_stmts():
 	return lines
 
 
-def if_less():
+def if_less_trees():
 	ret_n_tree = return_tree("n", indent=1, line=3)
 
 	if_stmt_tree = if_tree("n", "<", "10", indent=1, line=2)
@@ -303,7 +296,7 @@ def if_less_stmts():
 	lines.append("\treturn 0")
 	return lines
 
-def if_less_equal():
+def if_less_equal_trees():
 	ret_n_tree = return_tree("n", indent=1, line=3)
 
 	if_stmt_tree = if_tree("n", "<=", "10", indent=1, line=2)
@@ -322,7 +315,7 @@ def if_less_equal():
 	prog_body = Tree("STMT_LIST", indent=0, line=0, children=[func_tree])
 	return Tree("PROGRAM", children=[prog_body])
 
-def if_greater():
+def if_greater_trees():
 	ret_n_tree = return_tree("n", indent=1, line=3)
 
 	expr1 = var_tree("n")
@@ -343,7 +336,7 @@ def if_greater():
 	prog_body = Tree("STMT_LIST", indent=0, line=0, children=[func_tree])
 	return Tree("PROGRAM", children=[prog_body])
 
-def if_greater_equal():
+def if_greater_equal_trees():
 	ret_n_tree = return_tree("n", indent=1, line=3)
 
 	expr1 = var_tree("n")
@@ -370,7 +363,7 @@ def if_greater_equal():
 	prog_body = Tree("STMT_LIST", indent=0, line=0, children=[func_tree])
 	return Tree("PROGRAM", children=[prog_body])
 
-def if_equal():
+def if_equal_trees():
 	ret_n_tree = return_tree("n", indent=1, line=3)
 
 	if_stmt_tree = if_tree("n", "==", "10", indent=1, line=2)

@@ -2,71 +2,70 @@ from pseudo_parser import PseudoParser
 from lollify import *
 from python_codegen import *
 from train_examples import *
-#import train_examples
 import argparse
 
 def test_args1():
-	trees = [add_two_numbers()]
+	trees = [add_two_numbers_trees()]
 	stmts = add_two_numbers_stmts()
 	return trees, stmts 
 
 def test_args2():
-	trees = [print_to_number()]
+	trees = [print_to_number_trees()]
 	stmts = print_to_number_stmts()
 	return trees, stmts
 
 def test_args3():
-	trees = [add_two_numbers(), print_to_number()]
+	trees = [add_two_numbers_trees(), print_to_number_trees()]
 	stmts = add_two_numbers_stmts()
 	return trees, stmts
 
 def test_args4():
-	trees = [add_two_numbers(), print_to_number()]
+	trees = [add_two_numbers_trees(), print_to_number_trees()]
 	stmts = print_to_number_stmts()
 	return trees, stmts
 
 def test_args5():
-	trees = [add_two_numbers(), print_to_number(), print_to_number2()]
+	trees = [add_two_numbers_trees(), print_to_number_trees(), print_even_numbers_trees()]
 	stmts = print_to_number_stmts()
 	return trees, stmts
 
 def test_args6():
-	trees = [print_even_sum()]
+	trees = [print_even_sum_trees()]
 	stmts = print_even_sum_stmts()
 	return trees, stmts
 
 def test_args7():
-	trees = [add_two_numbers(), print_to_number(), print_to_number2()]
+	trees = [add_two_numbers_trees(), print_to_number_trees(), print_even_numbers_trees()]
 	stmts = print_even_sum_stmts()
 	return trees, stmts
 
 def test_args8():
-	trees = [add_two_numbers(), print_to_number(), print_to_number2()]
-	stmts = print_to_number2_stmts()
+	trees = [add_two_numbers_trees(), print_to_number_trees(), print_even_numbers_trees()]
+	stmts = print_even_numbers_stmts()
 	return trees, stmts
 
 def test_args9():
-	trees = [count_to_number()]
+	trees = [count_to_number_trees()]
 	stmts = count_to_number_stmts()
 	return trees, stmts
 
 def test_args10():
-	trees = [add_two_numbers(), print_to_number(), print_to_number2(), count_to_number()]
+	trees = [add_two_numbers_trees(), print_to_number_trees(), print_even_numbers_trees(), count_to_number_trees()]
 	stmts = print_even_sum_stmts()
 	return trees, stmts
 
 def test_args11():
-	trees = [if_less(), if_less_equal(), if_greater(), if_greater_equal(), if_equal()]
+	trees = [if_less_trees(), if_less_equal_trees(), if_greater_trees(), if_greater_equal_trees(), if_equal_trees()]
 	stmts = if_less_stmts()
 	return trees, stmts
 
 def test_args12():
-	trees = [fibonacci()]
+	trees = [fibonacci_trees()]
 	stmts = fibonacci_stmts()
 	return trees, stmts
 
 def test_args13():
-	trees = train_trees()
+	trees = train_trees_all()
 	stmts = fibonacci_stmts()
 	return trees, stmts
 
@@ -106,9 +105,9 @@ parser.add_argument('-t', '--train-all', action='store_true', default=False, hel
 
 args = parser.parse_args()
 
-# example_names = [fn_name.rpartition("_trees")[0] for fn_name in dir(train_examples) if fn_name.endswith("_trees")]
-# sprint example_names
-# examples = [(train_examples.__dict__[example_name + "_trees"], train_examples.__dict__[example_name + "_stmts"]) for example_name in example_names]
+#example_names = [fn_name.rpartition("_trees")[0] for fn_name in dir(train_examples) if fn_name.endswith("_trees")]
+#sprint example_names
+#examples = [(train_examples.__dict__[example_name + "_trees"], train_examples.__dict__[example_name + "_stmts"]) for example_name in example_names]
 
 # def allTrees():
 # 	return [trees() for trees, stmts in examples]
