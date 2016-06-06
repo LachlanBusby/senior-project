@@ -28,7 +28,7 @@ def add_two_numbers_stmts():
 	lines.append("\treturn c")
 	return lines
 
-#print add_two_numbers().toString()
+# print add_two_numbers().toString()
 # productions = {stmt_type: [] for stmt_type in parser_utils.STMT_TYPES}
 # parser_utils.trees2productions([add_two_numbers()], productions)
 # for p in productions:
@@ -135,7 +135,7 @@ def print_to_number2():
 		])
 	return Tree("PROGRAM", children=[prog_body])
 
-#print print_to_number().toString()
+# print print_to_number().toString()
 def print_to_number_stmts():
 	lines = []
 	lines.append("PRINT-TO-NUMBER(N)")
@@ -150,4 +150,32 @@ def print_to_number2_stmts():
 	lines.append("\t\tif x % 2 == 0")
 	lines.append("\t\t\tprint x")
 	#lines.append("PRINT-TO-NUMBER(5)")
+	return lines
+
+
+# is_even
+def check_is_even():
+	"""
+	IS-EVEN(N)
+		return (N % 2) == 0
+
+	IS-EVEN(4)
+	"""
+	bin_tree = test_utils.bin_op_val_int('N', '%', '2')
+
+	comp_tree = Tree("COMP_EXPR")
+	comp_tree.children.append(Tree("EXPR",children=[bin_tree]))
+	comp_tree.children.append(test_utils.comp_operator_tree('=='))
+	comp_tree.children.append(Tree("EXPR",children=[Tree("Int_Literal", children=[Tree('0')])]))
+	
+	ret_tree = Tree("RETURN")
+	ret_tree.children.append(Tree("Return_Keyword",children=[Tree("return")]))
+	ret_tree.children.append(comp_tree)
+	
+	return Tree("PROGRAM", children=[ret_tree])
+
+def check_is_even_stmts():
+	lines = []
+	lines.append("IS-EVEN(N)")
+	lines.append("\treturn (N % 2) == 0")
 	return lines
