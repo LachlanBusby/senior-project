@@ -423,3 +423,20 @@ def bin_op_ret_trees():
 
 	prog_body = Tree("STMT_LIST", indent=0, children=[func_tree])
 	return Tree("PROGRAM", children=[prog_body])
+
+
+def if_bin_comp(var, bin_op, comp_op, line_no, comp_val="true"):
+	bin = binop_tree(var_tree(var), bin_op, int_lit_tree("2"))
+	cond = compop_tree(bin, comp_op, bool_lit_tree(comp_val))
+	if_stmt_tree = if_expr_tree(cond, indent=1, line=line_no)
+	if_body = if_stmt_tree.getStmtBody()
+	call = call_tree("print", [binop_tree(var_tree(var), bin_op, int_lit_tree("2"))], expr_args=True)
+	if_body.children.append(call)
+
+# def if_bin_trees():
+# 	func_tree = func_def_tree("IF-BIN-METHOD", ["x"])
+# 	body_tree = func_tree.getStmtBody()
+# 	body_tree.children.append(if_bin_comp("x", "+", ">", 2))
+#
+# 	prog_body = Tree("STMT_LIST", indent=0, children=[func_tree])
+# 	return Tree("PROGRAM", children=[prog_body])
