@@ -3,39 +3,54 @@ from lollify import *
 from python_codegen import *
 import simple_examples
 
-def simple_test1():
-	simple_trees = []
-	simple_trees.append(simple_examples.add_two_numbers())
-
-	parser = PseudoParser.train(trees=simple_trees)
+def test_args1():
+	trees = [simple_examples.add_two_numbers()]
 	stmts = simple_examples.add_two_numbers_stmts()
-	result = parser.parse(stmts)
-	return result
-	print result.toString()
+	return trees, stmts 
 
-def simple_test2():
-	simple_trees = []
-	simple_trees.append(simple_examples.print_to_number())
-
-	parser = PseudoParser.train(trees=simple_trees)
+def test_args2():
+	trees = [simple_examples.print_to_number()]
 	stmts = simple_examples.print_to_number_stmts()
-	result = parser.parse(stmts)
+	return trees, stmts
+
+def test_args3():
+	trees = [simple_examples.add_two_numbers(), simple_examples.print_to_number()]
+	stmts = simple_examples.add_two_numbers_stmts()
+	return trees, stmts
+
+def test_args4():
+	trees = [simple_examples.add_two_numbers(), simple_examples.print_to_number()]
+	stmts = simple_examples.print_to_number_stmts()
+	return trees, stmts
+
+def full_test(train_trees, test_trees):
+	parse_tree = parser_test(test_trees)
+
+def parser_test(train_trees, test_stmts):
+	parser = PseudoParser.train(trees=train_trees)
+	result = parser.parse(test_stmts)
+	#print result.toString()
 	return result
-	print result.toString()
 
-def lollify_test1():
-	tree = simple_test1()
+def lollify_test(tree):
 	print tree.toString()
+	
 	ast = lollify_root(tree)
+	print "\n\n\n"
 	print ast
-	emit_pycode(ast, None)
+	
+	code = emit_pycode(ast, None)
+	print "\n\n\n"
+	print code
 
-def lollify_test2():
-	tree = simple_test2()
-	print tree.toString()
-	ast = lollify_root(tree)
-	print ast
-	emit_pycode(ast, None)
+trees, stmts = test_args1()
+lollify_test(parser_test(trees, stmts))
 
-lollify_test2()
-#simple_test1()
+trees, stmts = test_args2()
+lollify_test(parser_test(trees, stmts))
+
+# trees, stmts = test_args3()
+# lollify_test(parser_test(trees, stmts))
+
+# trees, stmts = test_args4()
+# lollify_test(parser_test(trees, stmts))
