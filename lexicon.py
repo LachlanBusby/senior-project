@@ -1,5 +1,10 @@
 from collections import defaultdict
 
+"""
+DEPRECATED. Using NLTK libraries now.
+See pseudo_parser, stmt_parser and stmt_classifier.
+"""
+
 class Lexicon:
 	'''Simple default implementation of a lexicon, which scores word,
 	tag pairs with a smoothed estimate of P(tag|word)/P(tag).'''

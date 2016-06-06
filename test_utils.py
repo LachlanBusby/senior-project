@@ -55,16 +55,30 @@ def arg_tree(arg_name):
 def int_lit_tree(lit_val):
 	return Tree("EXPR", children=[Tree("Int_Literal",children=[Tree(lit_val)])])
 
-def call_tree(func_name, args=None, parens=False):
+def call_tree(func_name, args=None, expr_args=False, parens=False):
 	call = Tree("CALL")
 	call.children.append(Tree("Func_Name", children=[Tree(func_name)]))
 	if parens:
 		call.children.append(Tree("Open_Paren", children=[Tree('(')]))
 	if args is not None:
-		call.children.append(arg_list_tree(args))
+		exprs = args if expr_args else [var_tree(a) for a in args]
+		call.children.append(expr_list_tree(exprs))
 	if parens:
 		call.children.append(Tree("Close_Paren", children=[Tree(')')]))
 	return Tree("EXPR", children=[call])
+
+def expr_list_tree(expr_trees):
+	list_tree = Tree("EXPR_LIST")
+	curr_list = list_tree
+	for enum, e in enumerate(expr_trees):
+		if len(curr_list.children) >= 1:
+			curr_list.children.append(Tree("LIST_DELIM", children=[Tree("Comma", children=[Tree(",")])]))
+			new_list = Tree("EXPR_LIST")
+			curr_list.children.append(new_list)
+			curr_list = new_list
+		curr_list.children.append(e)
+	return list_tree
+
 
 ### STATEMENT SPECIFIC ###
 

@@ -218,7 +218,7 @@ def lollify_return(node):
 @register("CALL")
 def lollify_call(node):
 	children = get_child_dict(node)
-	return Call(lollify(children["Func_Name"]), lollify(children["ARG_LIST"]))
+	return Call(lollify(children["Func_Name"]), lollify(children["EXPR_LIST"]))
 
 '''
 @register(DynamicCall)
