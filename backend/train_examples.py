@@ -16,7 +16,7 @@ def train_trees():
 	]
 	return trees
 
-def add_two_numbers():
+def add_two_numbers_trees():
 	"""
 	ADD-TWO-NUMBERS(a, b)
 		c = a + b
@@ -51,7 +51,7 @@ def add_two_numbers_stmts():
 # 		p_strs.append(r.unicode_repr())
 # 	print p + " : [" + "; ".join(p_strs) + "]"
 
-def fibonacci():
+def fibonacci_trees():
 	"""
 	FIBONACCI(N):
 		if N == 1 or N == 2:
@@ -99,7 +99,7 @@ def add_two_numbers_stmts():
 	lines.append("\treturn c")
 	return lines
 
-def print_to_number():
+def print_to_number_trees():
 	"""
 	PRINT-TO-NUMBER(N)
 		for x = 0 to N
@@ -122,7 +122,7 @@ def print_to_number():
 	prog_body = Tree("STMT_LIST", indent=0, line=0, children=[func_tree])
 	return Tree("PROGRAM", children=[prog_body])
 
-def count_to_number():
+def count_to_number_trees():
 	"""
 	COUNT-TO-TEN(start)
 	    x = start
@@ -161,7 +161,7 @@ def count_to_number_stmts():
 	lines.append("\tprint x")
 	return lines
 
-def print_to_number2():
+def print_to_number2_trees():
 	"""
 	PRINT-TO-NUMBER2(N)
 		for x = 0 to N
@@ -215,7 +215,7 @@ def print_to_number2_stmts():
 
 
 # is_even
-def check_is_even():
+def check_is_even_trees():
 	"""
 	IS-EVEN(N)
 		return (N % 2) == 0
@@ -242,7 +242,7 @@ def check_is_even_stmts():
 	return lines
 
 
-def print_even_sum():
+def print_even_sum_trees():
 	"""
 	PRINT-EVEN-SUM(x, y)
 		z = x + y
