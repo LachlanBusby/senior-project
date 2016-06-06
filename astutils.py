@@ -21,7 +21,7 @@ def accepts(*types, **kw):
 	'''
 	if not kw:
 		# default level: MEDIUM
-		debug = 1
+		debug = 0
 	else:
 		debug = kw['debug']
 	try:

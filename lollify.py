@@ -63,6 +63,7 @@ def lollify(node):
 	Main dispatch method, eliminates the need for a if-else chain or baking this 
 	into the tree class definition
 	"""
+	# print "Node:%s, children=%s" %(node.label, [child.label for child in node.children])
 	return dispatch.get(node.label)(node)
 
 def lollify_root(root):
@@ -164,9 +165,35 @@ def lollify_while(node):
 	return While(lollify(children["EXPR"]),
 				 lollify(children["STMT_LIST"]))
 
+@register("ELSE")
+def lollify_else(node):
+	children = get_child_dict(node)
+	if children.get("STMT_LIST") is not None:
+		return lollify(children["STMT_LIST"])
+	else:
+		return Statements([])
+
+@register("ELSE_IF")
+def lollify_elseif(node):
+	children = get_child_dict(node)
+	if children.get("IF") is not None:
+		return lollify(children["IF"])
+	else:
+		return lollify_if(node)
+
 @register("IF")
 def lollify_if(node):
-	raise NotImplementedError()
+	children = get_child_dict(node)
+	else_if = None
+	if children.get("ELSE_IF") is not None:
+		else_if = lollify(children["ELSE_IF"])
+	elif children.get("ELSE") is not None:
+		else_if = lollify(children["ELSE_IF"])
+	else:
+		else_if = Statements([])
+	return If(lollify(children["EXPR"]), 
+		      lollify(children["STMT_LIST"]), 
+			   else_if)
 
 @register("EXPR_STMT")
 def lollify_exprstmt(node):
@@ -235,8 +262,8 @@ def lollify_binop(node):
 @register("BOOL_EXPR")
 def lollify_boolop(node):
 	return BinOp(lollify(node.children[0]), 
-				 lollify(node.children[1],
-				 lollify(node.children[2])))
+				 lollify(node.children[1]),
+				 lollify(node.children[2]))
 
 @register("UNARY_EXPR")
 def lollify_unaryop(node):
@@ -246,24 +273,24 @@ def lollify_unaryop(node):
 @register("COMP_EXPR")
 def lollify_compareop(node):
 	return CompareOp(lollify(node.children[0]), 
-				 	 lollify(node.children[1],
-				 	 lollify(node.children[2])))
+				 	 lollify(node.children[1]),
+				 	 lollify(node.children[2]))
 
 @register("BIN_OP")
 @register("Bin_Op")
 def lollify_binoperator(node):
 	return lollify(node.children[0])
 
-@register("Bool_Op")
+@register("BOOL_OP")
 def lollify_booloperator(node):
 	return lollify(node.children[0])
 
-@register("Comp_Op")
-def lollify_booloperator(node):
+@register("COMP_OP")
+def lollify_compoperator(node):
 	return lollify(node.children[0])
 
-@register("Unary_Op")
-def lollify_booloperator(node):
+@register("UNARY_OP")
+def lollify_unaryoperator(node):
 	return lollify(node.children[0])
 
 @register("Bool_And")
@@ -306,7 +333,7 @@ def lollify_uminus(node):
 def lollify_not(node):
 	return Not()
 
-@register("Comp_EQ")
+@register("Comp_Eq")
 def lollify_eq(node):
 	return Eq()
 
