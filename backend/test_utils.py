@@ -3,6 +3,9 @@ import parser_utils
 
 ### GENERAL METHODS ###
 
+def bool_lit_tree(bool_val):
+	return Tree("EXPR", children=[Tree("Int_Literal", children=[Tree(bool_val)])])
+
 def var_tree(var_name):
 	""" EXPR -> Name -> [var_name] """
 	return Tree("EXPR", children=[Tree("Name", children=[Tree(var_name)])])

@@ -55,7 +55,7 @@ def test_args10():
 	return trees, stmts
 
 def test_args11():
-	trees = [if_less(), if_less_equal(), if_greater(), if_greater_equal(), if_equal()]
+	trees = [if_less_trees(), if_less_equal_trees(), if_greater_trees(), if_greater_equal_trees(), if_equal_trees()]
 	stmts = if_less_stmts()
 	return trees, stmts
 
