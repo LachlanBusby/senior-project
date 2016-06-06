@@ -49,7 +49,26 @@ def simple_test3():
 	code = emit_pycode(ast, None)
 	print code
 
+def simple_test4():
+	simple_trees = []
+	simple_trees.append(simple_examples.count_to_number())
+	print simple_examples.count_to_number()
+
+	parser = PseudoParser.train(trees=simple_trees)
+	stmts = simple_examples.count_to_number_stmts()
+	result = parser.parse(stmts)
+
+	print result
+	print "#### Input 3 ####"
+	print "\n".join(stmts).replace("\t", "    ")
+	print "\n#### Result ####"
+	ast = lollify_root(result)
+	print ast
+	code = emit_pycode(ast, None)
+	print code
+
 
 simple_test()
 simple_test2()
 simple_test3()
+simple_test4()

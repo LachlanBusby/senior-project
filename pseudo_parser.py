@@ -86,7 +86,7 @@ class PseudoParser():
                 parse_tree = self.parsers[t].parse(tokens)
                 if parse_tree is not None: break
             if parse_tree is None:
-                raise ValueError("Something fucked up. None of the parsers recognize this shit.")
+                raise ValueError("Something fucked up. None of the parsers recognize this shit. (%s)" %tokens)
 
             stmt_tree = Tree("STMT", indent, line, parent=parentNode)
             parse_tree.parent = stmt_tree
