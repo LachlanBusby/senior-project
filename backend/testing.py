@@ -2,6 +2,7 @@ from pseudo_parser import PseudoParser
 from lollify import *
 from python_codegen import *
 from train_examples import *
+#import train_examples
 import argparse
 
 def test_args1():
@@ -96,11 +97,29 @@ parser = argparse.ArgumentParser(description='Run tests for Lollipop Pseudocode 
 parser.add_argument('test', nargs='?', type=int, choices=range(0,13), default=0, help="Specify the test number that you'd like to run, or 0 to run all.")
 parser.add_argument('-p', '--parser', help='Run only the parser tests.', action='store_true')
 parser.add_argument('-v', '--verbose', type=int, choices=range(0,4), default=2, help="Set the level of output. 0 - no output, 1 - source code only, 2 - pseudocode and source code, 3 - all intermediate output")
+parser.add_argument('-t', '--train-all', action='store_true', default=False, help="Train parser on all examples")
 
 args = parser.parse_args()
 
-example_names = [fn_name.rpartition("_trees")[0] for fn_name in dir(simple_examples) if fn_name.endswith("_trees")]
-examples = [(simple_examples.__dict__[example_name + "_trees"], simple_examples.__dict__[example_name + "_stmts"]) for example_name in example_names]
+# example_names = [fn_name.rpartition("_trees")[0] for fn_name in dir(train_examples) if fn_name.endswith("_trees")]
+# sprint example_names
+# examples = [(train_examples.__dict__[example_name + "_trees"], train_examples.__dict__[example_name + "_stmts"]) for example_name in example_names]
+
+# def allTrees():
+# 	return [trees() for trees, stmts in examples]
+
+# if args.test == 0:
+# 	for i, example in enumerate(examples):
+# 		run_test(i, 
+# 				[example[0]()] if not args.train_all else allTrees, 
+# 				 example[1](), 
+# 				 args.parser, args.verbose)
+# else:
+# 	run_test(args.test, 
+# 				 [examples[args.test][0]()] if not args.train_all else allTrees, 
+# 				 examples[args.test][1](), 
+# 				 args.parser, args.verbose)	
+# exit(0)
 
 if args.test == 0 or args.test == 1:
 	trees, stmts = test_args1()
