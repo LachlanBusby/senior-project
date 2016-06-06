@@ -25,8 +25,8 @@ class PseudoParser():
         if filename is not None and trees is None:
             with open(filename, 'r') as f:
                 corpus = f.read()
+                print corpus
             trees = parser_utils.corpus2trees(corpus)
-
         trees, subs = parser_utils.preprocess_trees(trees)
         productions = {stmt_type: [] for stmt_type in parser_utils.STMT_TYPES}
         parser_utils.trees2productions(trees, productions)

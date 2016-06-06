@@ -88,12 +88,11 @@ def print_to_number2():
 	body_tree = func_tree.getStmtBody()
 	body_tree.children.append(for_tree)
 
-	call_tree2 = test_utils.call_tree("fn", ["5"])
-	exprstmt_tree = test_utils.expr_stmt_tree(call_tree2, line=5)
+	call_tree2 = test_utils.call_tree("PRINT-TO-NUMBER", ["5"], parens=True)
+	exprstmt_tree = test_utils.expr_stmt_tree(call_tree2, indent=0, line=5)
 	
 	prog_body = Tree("STMT_LIST", indent=0, line=0, children=[func_tree
-		#, exprstmt_tree
-		])
+		, Tree("STMT_LIST", indent=0, line=5, children=[exprstmt_tree])])
 	return Tree("PROGRAM", children=[prog_body])
 
 #print print_to_number().toString()
@@ -110,5 +109,5 @@ def print_to_number2_stmts():
 	lines.append("\tfor x = 0 to N")
 	lines.append("\t\tif x % 2 == 0")
 	lines.append("\t\t\tprint x")
-	#lines.append("fn 5")
+	lines.append("PRINT-TO-NUMBER(5)")
 	return lines

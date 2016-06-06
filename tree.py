@@ -285,7 +285,7 @@ class Tree:
         return self.toStringHelper(0)
 
     def toStringHelper(self, nindent):
-        string = '' + "".join([' ']*(4*nindent))
+        string = '' + "".join(['-']*(4*nindent))
         
         if self.isLeaf():
             string += "(\'" + self.label + "\')"
