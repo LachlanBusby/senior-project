@@ -1,20 +1,14 @@
 from tree import Tree
 from test_utils import *
 import parser_utils
+import sys
 
-def train_trees():
-	trees = [
-		add_two_numbers(),
-		print_to_number(),
-		print_to_number2(),
-		count_to_number(),
-		if_less_trees(),
-		if_less_equal_trees(),
-		if_greater_trees(),
-		if_greater_equal_trees(),
-		if_equal_trees()
-	]
-	return trees
+
+def train_trees_all():
+	current_module = sys.modules[__name__]
+	trees_names = [fn_name for fn_name in dir(current_module) if fn_name.endswith("_trees")]
+	print "All examples: %s" %trees_names
+	return [current_module.__dict__[fn_name]() for fn_name in trees_names]
 
 def add_two_numbers_trees():
 	"""
@@ -161,7 +155,7 @@ def count_to_number_stmts():
 	lines.append("\tprint x")
 	return lines
 
-def print_to_number2_trees():
+def print_even_numbers_trees():
 	"""
 	PRINT-TO-NUMBER2(N)
 		for x = 0 to N
@@ -204,7 +198,7 @@ def print_to_number_stmts():
 	lines.append("\t\tprint x")
 	return lines
 
-def print_to_number2_stmts():
+def print_even_numbers_stmts():
 	lines = []
 	lines.append("PRINT-TO-NUMBER2(N)")
 	lines.append("\tfor x = 0 to N")
