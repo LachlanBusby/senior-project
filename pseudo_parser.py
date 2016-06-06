@@ -42,7 +42,9 @@ class PseudoParser():
     @staticmethod
     def _tokenize(stmt):
         tokens = parser_utils.tokenize(stmt)
-        tokens, subs = parser_utils.substitute_literals(tokens)
+        subs = {}
+        tokens, subs = parser_utils.sub_literals(tokens, subs)
+        tokens, subs = parser_utils.guess_func_names(tokens, subs)
         return tokens
 
     @staticmethod
@@ -53,7 +55,6 @@ class PseudoParser():
 
     def parse(self, stmts):
         """ takes in a list of lines/statements and returns full parse tree """
-        numStatements = len(stmts)
         tree = Tree("PROGRAM", children=[])
         parentNode = Tree("STMT_LIST",indent=0,parent=tree)
         tree.children.append(parentNode)
