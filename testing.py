@@ -53,18 +53,6 @@ def run_test(test_num, trees, stmts, parse_only, output):
 			print code
 
 
-# trees, stmts = test_args1()
-# lollify_test(parser_test(trees, stmts))
-#
-# trees, stmts = test_args2()
-# lollify_test(parser_test(trees, stmts))
-
-# trees, stmts = test_args3()
-# lollify_test(parser_test(trees, stmts))
-
-# trees, stmts = test_args4()
-# lollify_test(parser_test(trees, stmts))
-
 
 parser = argparse.ArgumentParser(description='Run tests for Lollipop Pseudocode Compiler.')
 parser.add_argument('test', nargs='?', type=int, choices=range(0,5), default=0, help="Specify the test number that you'd like to run, or 0 to run all.")
