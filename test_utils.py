@@ -136,14 +136,24 @@ def assign_tree(var_name, var_val, var_type="Int"):
 
 def aug_assign_tree(var_name, var_val, bin_op, var_type="Int", indent=0, line=1):
 	literal_nt = var_type + "_Literal"
-	assign_tree = Tree("ASSIGN")
+	assign_tree = Tree("AUG_ASSIGN")
 	assign_tree.children.append(Tree("Name", children=[Tree(var_name)]))
 
-	assign_tree.append(bin_operator_tree(bin_op))
+	assign_tree.children.append(bin_operator_tree(bin_op))
 
 	assign_tree.children.append(Tree("Assign_Op", children=[Tree("=")]))
 	assign_tree.children.append(Tree("EXPR", children=[Tree(literal_nt, children=[Tree(var_val)])]))
 	return Tree("STMT", indent, line, children=[assign_tree])
+
+def aug_assign_expr_tree(var_name, val_tree, indent=0, line=1, as_stmt=True):
+	assign_tree = Tree("AUG_ASSIGN")
+	assign_tree.children.append(Tree("Name", children=[Tree(var_name)]))
+	assign_tree.children.append(Tree("Assign_Op", children=[Tree("=")]))
+	assign_tree.children.append(val_tree)
+	if as_stmt:
+		return Tree("STMT", indent, line, children=[assign_tree])
+	else:
+		return assign_tree
 
 def for_range_tree(var_name, start_expr, end_expr, down_to=False, by_val=None, indent=0, line=1):
 	"""

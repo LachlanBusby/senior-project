@@ -60,6 +60,45 @@ def print_to_number():
 	prog_body = Tree("STMT_LIST", indent=0, line=0, children=[func_tree])
 	return Tree("PROGRAM", children=[prog_body])
 
+def count_to_number():
+	"""
+	COUNT-TO-TEN(START)
+	    x = start
+	    while x < 10
+	        x += 1
+        print x
+	"""
+	assign_tree = test_utils.assign_expr_tree("x", test_utils.var_tree("START"), indent=1, line=2)
+	aug_assign_tree = test_utils.aug_assign_tree("x", "1", "+", indent=2, line=4)
+	while_tree = test_utils.while_tree("x", "<", "10", indent=1, line=3)
+
+	while_body = while_tree.getStmtBody()
+	while_body.children.append(aug_assign_tree)
+
+	call_tree = test_utils.call_tree("print", ["x"])
+	print_tree = test_utils.expr_stmt_tree(call_tree, indent=2, line=3)
+
+	while_stmt_tree = test_utils.Tree("STMT_LIST", indent=0, line=0, children=[
+		while_tree, 
+		Tree("STMT_LIST", indent=1, line=5, children=[print_tree])])
+		
+	func_tree = test_utils.func_def_tree("COUNT-TO-TEN", ["START"])
+	body_tree = func_tree.getStmtBody()
+	body_tree.children.append(assign_tree)
+	body_tree.children.append(while_stmt_tree)
+
+	prog_body = Tree("STMT_LIST", indent=0, line=0, children=[func_tree])
+	return Tree("PROGRAM", children=[prog_body])
+
+def count_to_number_stmts():
+	lines = []
+	lines.append("COUNT-TO-TEN(START)")
+	lines.append("\tx = START")
+	lines.append("\twhile x < 10")
+	lines.append("\t\tx += 1")
+	lines.append("\tprint x")
+	return lines
+
 def print_to_number2():
 	"""
 	PRINT-TO-NUMBER(N)
@@ -92,7 +131,8 @@ def print_to_number2():
 	exprstmt_tree = test_utils.expr_stmt_tree(call_tree2, indent=0, line=5)
 	
 	prog_body = Tree("STMT_LIST", indent=0, line=0, children=[func_tree
-		, Tree("STMT_LIST", indent=0, line=5, children=[exprstmt_tree])])
+		#, Tree("STMT_LIST", indent=0, line=5, children=[exprstmt_tree])
+		])
 	return Tree("PROGRAM", children=[prog_body])
 
 #print print_to_number().toString()
@@ -109,5 +149,5 @@ def print_to_number2_stmts():
 	lines.append("\tfor x = 0 to N")
 	lines.append("\t\tif x % 2 == 0")
 	lines.append("\t\t\tprint x")
-	lines.append("PRINT-TO-NUMBER(5)")
+	#lines.append("PRINT-TO-NUMBER(5)")
 	return lines
