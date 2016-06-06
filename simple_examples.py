@@ -60,10 +60,55 @@ def print_to_number():
 	prog_body = Tree("STMT_LIST", indent=0, line=0, children=[func_tree])
 	return Tree("PROGRAM", children=[prog_body])
 
+def print_to_number2():
+	"""
+	PRINT-TO-NUMBER(N)
+		for x = 0 to N + 1
+			if x % 2 == 0
+				print x
+
+	PRINT-TO-NUMBER(5)
+	"""
+	start_expr = test_utils.int_lit_tree("0")
+	end_expr = test_utils.var_tree("N")
+	for_tree = test_utils.for_range_tree("x", start_expr, end_expr, indent=1, line=2)
+
+	call_tree = test_utils.call_tree("print", ["x"])
+	print_tree = test_utils.expr_stmt_tree(call_tree, indent=3, line=4)
+
+	if_tree = test_utils.if_binop_tree("x", "%", "2", "==", "0", indent=2, line=3)
+	if_body = if_tree.getStmtBody()
+	if_body.children.append(print_tree)
+
+
+	for_body = for_tree.getStmtBody()
+	for_body.children.append(if_tree)
+
+	func_tree = test_utils.func_def_tree("PRINT-TO-NUMBER", ["N"])
+	body_tree = func_tree.getStmtBody()
+	body_tree.children.append(for_tree)
+
+	call_tree2 = test_utils.call_tree("fn", ["5"])
+	exprstmt_tree = test_utils.expr_stmt_tree(call_tree2, line=5)
+	
+	prog_body = Tree("STMT_LIST", indent=0, line=0, children=[func_tree
+		#, exprstmt_tree
+		])
+	return Tree("PROGRAM", children=[prog_body])
+
 #print print_to_number().toString()
 def print_to_number_stmts():
 	lines = []
 	lines.append("PRINT-TO-NUMBER(N)")
 	lines.append("\tfor x = 0 to N")
 	lines.append("\t\tprint x")
+	return lines
+
+def print_to_number2_stmts():
+	lines = []
+	lines.append("PRINT-TO-NUMBER(N)")
+	lines.append("\tfor x = 0 to N")
+	lines.append("\t\tif x % 2 == 0")
+	lines.append("\t\t\tprint x")
+	#lines.append("fn 5")
 	return lines

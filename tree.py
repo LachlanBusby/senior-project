@@ -18,7 +18,7 @@ class Tree:
         self.parent = parent
 
     def __repr__(self):
-        return "Node(label=" + self.label + ", " + "children=" + str([child.label for child in self.children]) + ")"
+        return self.toString()
 
     def getChildren(self):
         return self.children
@@ -291,7 +291,7 @@ class Tree:
         return self.toStringHelper(0)
 
     def toStringHelper(self, nindent):
-        string = '' + ('\t' * nindent)
+        string = '' + "".join([' ']*(4*nindent))
         
         if self.isLeaf():
             string += "(\'" + self.label + "\')"

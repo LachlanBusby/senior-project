@@ -8,9 +8,46 @@ def var_tree(var_name):
 	return Tree("EXPR", children=[Tree("Name", children=[Tree(var_name)])])
 
 def add_expr(a,b):
-	op_tree = Tree("BIN_OP", children=[Tree("Bin_Add", children=[Tree("+")])])
-	bin_tree = Tree("BIN_EXPR", children=[var_tree(a), op_tree, var_tree(b)])
+	# op_tree = Tree("BIN_OP", children=[Tree("Bin_Add", children=[Tree("+")])])
+	bin_tree = Tree("BIN_EXPR", children=[var_tree(a), bin_operator_tree("+"), var_tree(b)])
 	return Tree("EXPR", children=[bin_tree])
+
+def bin_operator_tree(bin_op):
+	bin_nt = ""
+	if bin_op == "+":
+		bin_nt = "Bin_Add"
+	elif bin_op == "-":
+		bin_nt = "Bin_Sub"
+	elif bin_op == "*":
+		bin_nt = "Bin_Mult"
+	elif bin_op == "/":
+		bin_nt = "Bin_Div"
+	elif bin_op == "%":
+		bin_nt = "Bin_Mod"
+	return Tree("BIN_OP", children=[Tree(bin_nt, children=[Tree(bin_op)])])
+
+def comp_operator_tree(comp_op):
+	comp_nt = ""
+	if comp_op == "<":
+		comp_nt = "Comp_LE"
+	elif comp_op == "<=":
+		comp_nt = "Comp_LEq"
+	elif comp_op == ">":
+		comp_nt = "Comp_GE"
+	elif comp_op == ">=":
+		comp_nt = "Comp_GEq"
+	elif comp_op == "==":
+		comp_nt = "Comp_Eq"
+	elif comp_op == "!=":
+		comp_nt = "Comp_NEq"
+	return Tree("COMP_OP", children=[Tree(comp_nt, children=[Tree(comp_op)])])
+
+def bin_op_val_int(var, op, intlit):
+	bin_tree = Tree("BIN_EXPR", children=[var_tree(var), bin_operator_tree(op), int_lit_tree(intlit)])
+	return Tree("EXPR", children=[bin_tree])
+
+def name_tree(var_name):
+	return Tree("Name", children=[Tree(var_name)])
 
 def arg_tree(arg_name):
 	return Tree("ARG",children=[var_tree(arg_name)])
@@ -92,7 +129,7 @@ def assign_tree(var_name, var_val, var_type="Int"):
 	""" [var_name] = [var_val] """
 	literal_nt = var_type + "_Literal"
 	assign_tree = Tree("ASSIGN")
-	assign_tree.children.append(Tree("Name", children=[Tree(var_name)]))
+	assign_tree.children.append(name_tree)
 	assign_tree.children.append(Tree("Assign_Op", children=[Tree("=")]))
 	assign_tree.children.append(Tree("EXPR", children=[Tree(literal_nt, children=[Tree(var_val)])]))
 	return assign_tree 
@@ -102,18 +139,7 @@ def aug_assign_tree(var_name, var_val, bin_op, var_type="Int", indent=0, line=1)
 	assign_tree = Tree("ASSIGN")
 	assign_tree.children.append(Tree("Name", children=[Tree(var_name)]))
 
-	bin_nt = ""
-	if bin_op == "+":
-		bin_nt = Bin_Add
-	elif bin_op == "-":
-		bin_nt = Bin_Sub
-	elif bin_op == "*":
-		bin_nt = Bin_Mult
-	elif bin_op == "/":
-		bin_nt = Bin_Div
-	elif bin_op == "%":
-		bin_nt = Bin_Mod
-	assign_tree.append(Tree("BIN_OP", children=[Tree(bin_nt,children=[Tree(bin_op)])]))
+	assign_tree.append(bin_operator_tree(bin_op))
 
 	assign_tree.children.append(Tree("Assign_Op", children=[Tree("=")]))
 	assign_tree.children.append(Tree("EXPR", children=[Tree(literal_nt, children=[Tree(var_val)])]))
@@ -155,17 +181,7 @@ def while_tree(var_name, comp_op, comp_val, indent=0, line=1):
 	comp_tree = Tree("COMP_EXPR")
 	comp_tree.children.append(Tree("EXPR",children=[Tree("Name", children=[Tree(var_name)])]))
 
-	comp_nt = ""
-	if comp_op == "<":
-		comp_nt = "Comp_LE"
-	elif comp_op == "<=":
-		comp_nt = "Comp_LEq"
-	elif comp_op == ">":
-		comp_nt = "Comp_GE"
-	elif comp_op == ">=":
-		comp_nt = "Comp_GEq"
-
-	comp_tree.children.append(Tree("COMP_OP", children=[Tree(comp_nt, children=[Tree(comp_op)])]))
+	comp_tree.children.append(comp_operator_tree(comp_op))
 	comp_tree.children.append(Tree("EXPR", children=[Tree("Int_Literal", children=[Tree(comp_val)])]))
 
 	while_tree = Tree("WHILE",children=[])
@@ -174,23 +190,28 @@ def while_tree(var_name, comp_op, comp_val, indent=0, line=1):
 	while_tree.children.append(Tree("STMT_LIST", indent + 1, line + 1))
 	return Tree("STMT", indent, line, children=[while_tree])
 
+def if_binop_tree(var_name, bin_op, intval, comp_op, compval, indent=0, line=1):
+	comp_tree = Tree("COMP_EXPR", children=[
+					Tree("BIN_EXPR", children=[
+						name_tree(var_name), 
+						bin_operator_tree(bin_op), 
+						int_lit_tree(intval)]),
+					comp_operator_tree(comp_op), 
+					Tree("EXPR",children=[Tree("Int_Literal", children=[Tree(compval)])])])
+
+	if_tree = Tree("IF",children=[])
+	if_tree.children.append(Tree("If_Keyword",children=[Tree("if")]))
+	if_tree.children.append(Tree("EXPR",children=[comp_tree]))
+	if_tree.children.append(Tree("STMT_LIST", indent + 1, line + 1))
+	return Tree("STMT", indent, line, children=[if_tree])
+
 # TODO: else tree
 def if_tree(var_name, comp_op, comp_val, indent=0, line=1):
 	""" default: if [var_name] [comp_op] [comp_val] """
 	comp_tree = Tree("COMP_EXPR")
 	comp_tree.children.append(Tree("EXPR",children=[Tree("Name",children=[Tree(var_name)])]))
 
-	comp_nt = ""
-	if comp_op == "<":
-		comp_nt = "Comp_LE"
-	elif comp_op == "<=":
-		comp_nt = "Comp_LEq"
-	elif comp_op == ">":
-		comp_nt = "Comp_GE"
-	elif comp_op == ">=":
-		comp_nt = "Comp_GEq"
-
-	comp_tree.children.append(Tree("COMP_OP",children=[Tree(comp_nt,children=[Tree(comp_op)])]))
+	comp_tree.children.append(comp_operator_tree(comp_op))
 	comp_tree.children.append(Tree("EXPR",children=[Tree("Int_Literal", children=[Tree(comp_val)])]))
 
 	if_tree = Tree("IF",children=[])
