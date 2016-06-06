@@ -131,7 +131,13 @@ class Tree:
         """
         if not self.isStmt():
             return None 
-        return " ".join(self.getYield(True))
+        stmt_body = self.getStmtBody()
+        if stmt_body is not None:
+            self.children[0].children.remove(stmt_body)
+        line = " ".join(self.getYield(True))
+        if stmt_body is not None:
+            self.children[0].children.append(stmt_body)
+        return line
 
 
     # Returns a list of words at the leafs of this tree gotten by

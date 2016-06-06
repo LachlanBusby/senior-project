@@ -16,6 +16,7 @@ def test_args2():
 
 def test_args3():
 	trees = [simple_examples.add_two_numbers(), simple_examples.print_to_number()]
+	# trees = [simple_examples.add_two_numbers(), simple_examples.add_two_numbers(), simple_examples.add_two_numbers(), simple_examples.add_two_numbers(), simple_examples.print_to_number()]
 	stmts = simple_examples.add_two_numbers_stmts()
 	return trees, stmts
 
