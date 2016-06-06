@@ -47,23 +47,35 @@ def fibonacci():
 	compop_tree1 = test_utils.comp_op_val_int("N", "==", "1")
 	compop_tree2 = test_utils.comp_op_val_int("N", "==", "2")
 	boolop_tree = test_utils.boolop_tree(compop_tree1, "or", compop_tree2)
-	
+	ret_tree1 = test_utils.return_expr_tree(
+		test_utils.int_lit_tree("1"), indent=1, line=3)
 
-	call_tree1 = test_utils.call_tree("FIBONACCI", [""])
-	fib_tree1 = test_utils.expr_stmt_tree(call_tree, indent=3, line=4)
-
-	if_tree = test_utils.if_binop_tree("x", "%", "2", "==", "0", indent=2, line=3)
+	if_tree = test_utils.if_expr_tree(boolop_tree, indent=2, line=2)
 	if_body = if_tree.getStmtBody()
-	if_body.children.append(print_tree)
+	if_body.children.append(ret_tree1)
+
+	binop_tree1 = test_utils.bin_op_val_int("N", "-", "1")
+	binop_tree2 = test_utils.bin_op_val_int("N", "-", "2")
+	call_tree1 = test_utils.call_tree("FIBONACCI", [binop_tree1], parens=True, expr_args=True)
+	call_tree2 = test_utils.call_tree("FIBONACCI", [binop_tree2], parens=True, expr_args=True)
+
+	binop_tree3 = test_utils.binop_tree(call_tree1, "+", call_tree2)
+	ret_tree2 = test_utils.return_expr_tree(binop_tree3)
+	func_tree = test_utils.func_def_tree("FIBONACCI", ["N"])
+
+	body_tree = func_tree.getStmtBody()
+	body_tree.children.append(if_tree)
+	body_tree.children.append(Tree("STMT_LIST", indent=1, line=3, children=[ret_tree2]))
+
+	prog_body = Tree("STMT_LIST", indent=0, line=0, children=[func_tree])
+	return Tree("PROGRAM", children=[prog_body])
 
 
 def fibonacci_stmts():
-	return ["FIBONACCI(N):",
-			"\tif N == 1 OR N == 2:",
+	return ["FIBONACCI(N)", 
+			"\tif N == 1 or N == 2",
 			"\t\treturn 1",
-			"\telse",
-			"\tfib = FIBONACCI(N - 1) + FIBONACCI(N - 2)"]
-
+			"\treturn FIBONACCI(N - 1) + FIBONACCI(N - 2)"]
 
 
 def add_two_numbers_stmts():

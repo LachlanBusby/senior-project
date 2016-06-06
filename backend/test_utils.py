@@ -28,9 +28,9 @@ def bin_operator_tree(bin_op):
 
 def bool_operator_tree(bool_op):
 	bool_nt = ""
-	if bin_op == "or":
+	if bool_op == "or":
 		bool_nt = "Bool_Or"
-	elif bin_op == "and":
+	elif bool_op == "and":
 		bool_nt = "Bool_And"
 	return Tree("BOOL_OP", children=[Tree(bool_nt, children=[Tree(bool_op)])])
 
@@ -51,10 +51,14 @@ def comp_operator_tree(comp_op):
 	return Tree("COMP_OP", children=[Tree(comp_nt, children=[Tree(comp_op)])])
 
 def boolop_tree(expr1, op, expr2):
-	return Tree("EXPR", children=[Tree("BOOL_EXPR", children=[expr1, bin_operator_tree(op), expr2])])
+	return Tree("EXPR", children=[Tree("BOOL_EXPR", children=[expr1, bool_operator_tree(op), expr2])])
+
+def binop_tree(expr1, op, expr2):
+	return Tree("EXPR", children=[Tree("BIN_OP", children=[expr1, bin_operator_tree(op), expr2])])
+
 
 def comp_op_val_int(var, op, intlit):
-	comp_tree = Tree("COMP_EXPR", children=[var_tree(var), bin_operator_tree(op), int_lit_tree(intlit)])
+	comp_tree = Tree("COMP_EXPR", children=[var_tree(var), comp_operator_tree(op), int_lit_tree(intlit)])
 	return Tree("EXPR", children=[comp_tree])
 
 def bin_op_val_int(var, op, intlit):
@@ -126,6 +130,13 @@ def return_tree(var_name, indent=0, line=1):
 	ret_tree = Tree("RETURN")
 	ret_tree.children.append(Tree("Return_Keyword",children=[Tree("return")]))
 	ret_tree.children.append(var_tree(var_name))
+	return Tree("STMT", indent, line, children=[ret_tree])
+
+def return_expr_tree(ret_expr, indent=0, line=1):
+	""" return [var_name] """
+	ret_tree = Tree("RETURN")
+	ret_tree.children.append(Tree("Return_Keyword",children=[Tree("return")]))
+	ret_tree.children.append(ret_expr)
 	return Tree("STMT", indent, line, children=[ret_tree])
 
 def assign_stmt_tree(var_name, var_val, var_type="Int", indent=0, line=1):
@@ -233,11 +244,11 @@ def if_binop_tree(var_name, bin_op, intval, comp_op, compval, indent=0, line=1):
 
 # TODO: else tree
 
-def if_expr_tree(comp_expr, indent=0, line=1):
+def if_expr_tree(cond_expr, indent=0, line=1):
 	""" default: if [var_name] [comp_op] [comp_val] """
 	if_tree = Tree("IF",children=[])
 	if_tree.children.append(Tree("If_Keyword",children=[Tree("if")]))
-	if_tree.children.append(Tree("EXPR",children=[comp_expr]))
+	if_tree.children.append(Tree("EXPR",children=[cond_expr]))
 	if_tree.children.append(Tree("STMT_LIST", indent + 1, line + 1))
 	return Tree("STMT", indent, line, children=[if_tree])
 

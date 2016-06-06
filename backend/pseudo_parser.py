@@ -58,7 +58,7 @@ class PseudoParser():
         tree = Tree("PROGRAM", children=[])
         parentNode = Tree("STMT_LIST",indent=0,parent=tree)
         tree.children.append(parentNode)
-
+        
         for line, stmt in enumerate(stmts):
             indent = len(stmt) - len(stmt.lstrip('\t'))
             while True:
