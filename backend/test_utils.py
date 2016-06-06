@@ -56,6 +56,8 @@ def boolop_tree(expr1, op, expr2):
 def binop_tree(expr1, op, expr2):
 	return Tree("EXPR", children=[Tree("BIN_OP", children=[expr1, bin_operator_tree(op), expr2])])
 
+def compop_tree(expr1, op, expr2):
+	return Tree("EXPR", children=[Tree("COMP_OP", children=[expr1, comp_operator_tree(op), expr2])])
 
 def comp_op_val_int(var, op, intlit):
 	comp_tree = Tree("COMP_EXPR", children=[var_tree(var), comp_operator_tree(op), int_lit_tree(intlit)])
