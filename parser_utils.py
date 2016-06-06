@@ -1,3 +1,4 @@
+import re
 from tree import Tree
 import nltk.grammar
 from nltk.tokenize import wordpunct_tokenize
@@ -31,7 +32,6 @@ def fix_augassign(tokens):
             ret.append(token)
     return ret
 
-
 def fix_hyphens(tokens):
     if len(tokens) < 3:
         return tokens
@@ -52,27 +52,38 @@ VAR_SUB = "___VAR___"
 INT_SUB = "___INT_LIT___"
 FLOAT_SUB = "___FLOAT_LIT___"
 STR_SUB = "___STR_LIT___"
+FUNC_NAME_SUB = "___FUNC_NAME___"
 
 def preprocess_trees(trees):
     subs = []
     for t in trees:
-        orig_yield = t.getYield()
-        sub_yield, t_subs = substitute_literals(orig_yield)
-        t.setWords(sub_yield)
+        tokens, t_subs = sub_func_names(t)
+        tokens, t_subs = sub_literals(tokens, t_subs)
+        t.setWords(tokens)
         subs.append(t_subs)
     return trees, subs
 
 def postprocess_trees(trees, substitutions):
     for idx, t in enumerate(trees):
         sub_yield = t.getYield()
-        orig_yield = restore_literals(sub_yield, substitutions[idx])
+        orig_yield = restore_tokens(sub_yield, substitutions[idx])
         t.setWords(orig_yield)
     return trees
 
-def substitute_literals(tokens):
+def sub_func_names(tree):
+    preterms = tree.getPreTerminalYield()
+    tokens = []
     subs = {}
-    new_tokens = []
+    for idx, tok in enumerate(tree.getYield()):
+        if preterms[idx] == "Func_Name":
+            tokens.append(FUNC_NAME_SUB)
+            subs[idx] = tok
+        else:
+            tokens.append(tok)
+    return tokens, subs
 
+def sub_literals(tokens, subs):
+    new_tokens = []
     for idx, tok in enumerate(tokens):
         if is_var(tok):
             new_tokens.append(VAR_SUB)
@@ -87,7 +98,17 @@ def substitute_literals(tokens):
             new_tokens.append(tok)
     return new_tokens, subs
 
-def restore_literals(tokens, substitutions):
+def guess_func_names(tokens, subs):
+    new_tokens = []
+    for idx, tok in enumerate(tokens):
+        if is_func_name(tok):
+            new_tokens.append(FUNC_NAME_SUB)
+            subs[idx] = tok
+        else:
+            new_tokens.append(tok)
+    return new_tokens, subs
+
+def restore_tokens(tokens, substitutions):
     for idx in substitutions: tokens[idx] = substitutions[idx]
     return tokens
 
@@ -111,6 +132,23 @@ def is_float(token):
     except ValueError:
         return False
 
+def is_func_name(token):
+    if len(token) <= 1: return False
+    if is_var(token) or is_int(token) or is_float(token): return False
+
+    if token == "print": return True
+    if re.match(r"^[A-Z0-9]+[A-Z0-9-]*$", token) is not None: return True
+    return False
+
+# print "ADD-TWO-NUMBERS: " + str(is_func_name("ADD-TWO-NUMBERS"))
+# print "for: " + str(is_func_name("for"))
+# print "A: " + str(is_func_name("A"))
+# print "PRINT: " + str(is_func_name("PRINT"))
+# print "print: " + str(is_func_name("print"))
+# print "PRINT-TO-NUMBER: " + str(is_func_name("PRINT-TO-NUMBER"))
+# print "PRINT-TO-NUMBER2: " + str(is_func_name("PRINT-TO-NUMBER2"))
+# print "32: " + str(is_func_name("32"))
+# print "___INT_LIT___: " + str(is_func_name(INT_SUB))
 
 def corpus2trees(corpus):
     trees = []
