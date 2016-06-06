@@ -17,10 +17,20 @@ def convert_nltk_tree(t):
     return converted
 
 # see NLTK WordPunctTokenizer
+
 def tokenize(stmt):
     tokens = wordpunct_tokenize(stmt)
-    tokens = fix_hyphens(tokens)
-    return tokens
+    hotfix_tokens = fix_hyphens(tokens)
+    return fix_augassign(hotfix_tokens)
+
+def fix_augassign(tokens):
+    ret = []
+    for token in tokens:
+        if len(token) == 2 and token[1] == '=' and token[0] in ['+', '-', '%', '*', '/']:
+            ret += [token[0], token[1]]
+        else:
+            ret.append(token)
+    return ret
 
 def fix_hyphens(tokens):
     if len(tokens) < 3:
