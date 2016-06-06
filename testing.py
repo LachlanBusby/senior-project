@@ -43,14 +43,17 @@ def lollify_test(tree):
 	print "\n\n\n"
 	print code
 
-trees, stmts = test_args1()
-lollify_test(parser_test(trees, stmts))
-
-trees, stmts = test_args2()
-lollify_test(parser_test(trees, stmts))
-
-# trees, stmts = test_args3()
+# trees, stmts = test_args1()
 # lollify_test(parser_test(trees, stmts))
+#
+# trees, stmts = test_args2()
+# lollify_test(parser_test(trees, stmts))
+
+trees, stmts = test_args3()
+lollify_test(parser_test(trees, stmts))
 
 # trees, stmts = test_args4()
 # lollify_test(parser_test(trees, stmts))
+
+
+parser = argparse.ArgumentParser(description='Run tests for Lollipop Pseudocode Compiler.')

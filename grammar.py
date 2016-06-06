@@ -3,6 +3,11 @@ import defaultdict
 import nltk
 
 """
+DEPRECATED. Using NLTK libraries now.
+See pseudo_parser, stmt_parser and stmt_classifier.
+"""
+
+"""
 BASED ON CS224N - Grammar class (in Java)
 """
 
