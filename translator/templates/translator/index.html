@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  	<title>Pseudocode Translator</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+
+	<!-- jQuery library -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+
+	<!-- Latest compiled JavaScript -->
+	<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+  </head>
+  <body>
+	  <div class="container-fluid">
+		  <h1 class="text-info">Pseudocode Translator</h1>
+		  <div class="row">
+		  	<form role="form" method="post" action="{% url 'translator:get_code' %}">
+		  	{% csrf_token %}
+		  		<div class="col-md-6">
+		  			<div class="form-group">
+			  			<label for="pseudocode">Pseudocode:</label>
+			  			<textarea class="form-control" rows="10" name="pseudocode" id="pseudocode">{{pseudocode}}</textarea>
+		  			</div>
+		  			<div class="form-group">
+			  			<label for="language">Select language:</label>
+						<select class="form-control" id="language">
+							<option>Python</option>
+						</select>
+					</div>
+					<div class="form-group">
+			  			<button type="submit" class="btn btn-primary">Translate</button>
+		  			</div>
+		  		</div>
+		  	</form>
+		  	<form role="form">
+		  		<div class="col-md-6">
+		  			<label for="code">Real Code:</label>
+		  			<textarea class="form-control" rows="10" id="code">{{ code }}</textarea>
+		  		</div>
+		  	</form>
+		  </div>
+		  <small class="text-muted">Created by Lachlan Busby, Nicole Crawford, and Emre Orbay<br />CS 194 Spring 2016</small>
+	  </div>
+  </body>
+</html>
