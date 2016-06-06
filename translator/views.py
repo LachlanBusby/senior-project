@@ -12,7 +12,7 @@ def index(request):
 
 def get_code(request):
 	pseudocode = request.POST['pseudocode']
-	train_trees = train.train_trees()
+	train_trees = train.train_trees_all()
 	test_stmts = pseudocode.split('\n')
 	parser = PseudoParser.train(trees=train_trees)
 
