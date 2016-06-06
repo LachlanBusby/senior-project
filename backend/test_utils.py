@@ -26,6 +26,14 @@ def bin_operator_tree(bin_op):
 		bin_nt = "Bin_Mod"
 	return Tree("BIN_OP", children=[Tree(bin_nt, children=[Tree(bin_op)])])
 
+def bool_operator_tree(bool_op):
+	bool_nt = ""
+	if bin_op == "or":
+		bool_nt = "Bool_Or"
+	elif bin_op == "and":
+		bool_nt = "Bool_And"
+	return Tree("BOOL_OP", children=[Tree(bool_nt, children=[Tree(bool_op)])])
+
 def comp_operator_tree(comp_op):
 	comp_nt = ""
 	if comp_op == "<":
@@ -41,6 +49,13 @@ def comp_operator_tree(comp_op):
 	elif comp_op == "!=":
 		comp_nt = "Comp_NEq"
 	return Tree("COMP_OP", children=[Tree(comp_nt, children=[Tree(comp_op)])])
+
+def boolop_tree(expr1, op, expr2):
+	return Tree("EXPR", children=[Tree("BOOL_EXPR", children=[expr1, bin_operator_tree(op), expr2])])
+
+def comp_op_val_int(var, op, intlit):
+	comp_tree = Tree("COMP_EXPR", children=[var_tree(var), bin_operator_tree(op), int_lit_tree(intlit)])
+	return Tree("EXPR", children=[comp_tree])
 
 def bin_op_val_int(var, op, intlit):
 	bin_tree = Tree("BIN_EXPR", children=[var_tree(var), bin_operator_tree(op), int_lit_tree(intlit)])
@@ -63,6 +78,7 @@ def call_tree(func_name, args=None, expr_args=False, parens=False):
 	if args is not None:
 		exprs = args if expr_args else [var_tree(a) for a in args]
 		call.children.append(expr_list_tree(exprs))
+
 	if parens:
 		call.children.append(Tree("Close_Paren", children=[Tree(')')]))
 	return Tree("EXPR", children=[call])

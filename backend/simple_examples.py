@@ -37,6 +37,41 @@ def add_two_numbers_stmts():
 # 		p_strs.append(r.unicode_repr())
 # 	print p + " : [" + "; ".join(p_strs) + "]"
 
+def fibonacci():
+	"""
+	FIBONACCI(N):
+		if N == 1 or N == 2:
+			return 1
+		return FIBONACCI(N - 1) + FIBONACCI(N - 2)
+	"""
+	compop_tree1 = test_utils.comp_op_val_int("N", "==", "1")
+	compop_tree2 = test_utils.comp_op_val_int("N", "==", "2")
+	boolop
+
+	call_tree1 = test_utils.call_tree("FIBONACCI", [""])
+	fib_tree1 = test_utils.expr_stmt_tree(call_tree, indent=3, line=4)
+
+	if_tree = test_utils.if_binop_tree("x", "%", "2", "==", "0", indent=2, line=3)
+	if_body = if_tree.getStmtBody()
+	if_body.children.append(print_tree)
+
+
+def fibonacci_stmts():
+	return ["FIBONACCI(N):",
+			"\tif N == 1 OR N == 2:",
+			"\t\treturn 1",
+			"\telse",
+			"\tfib = FIBONACCI(N - 1) + FIBONACCI(N - 2)"]
+
+
+
+def add_two_numbers_stmts():
+	lines = []
+	lines.append("ADD-TWO-NUMBERS(a, b)")
+	lines.append("\tc = a + b")
+	lines.append("\treturn c")
+	return lines
+
 def print_to_number():
 	"""
 	PRINT-TO-NUMBER(N)
