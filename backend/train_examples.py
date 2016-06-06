@@ -3,9 +3,14 @@ from test_utils import *
 import parser_utils
 import sys
 
-def train_trees_all():
+def train_trees_all(do_not_include=[]):
 	current_module = sys.modules[__name__]
 	trees_names = [fn_name for fn_name in dir(current_module) if fn_name.endswith("_trees")]
+	for tree in trees_names:
+		for name in do_not_include:
+			if tree.startswith(name):
+				trees_names.remove(tree)
+
 	print "All examples: %s" %trees_names
 	return [current_module.__dict__[fn_name]() for fn_name in trees_names]
 
