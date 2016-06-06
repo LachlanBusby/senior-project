@@ -28,7 +28,7 @@ def add_two_numbers_stmts():
 	lines.append("\treturn c")
 	return lines
 
-#print add_two_numbers().toString()
+# print add_two_numbers().toString()
 # productions = {stmt_type: [] for stmt_type in parser_utils.STMT_TYPES}
 # parser_utils.trees2productions([add_two_numbers()], productions)
 # for p in productions:
@@ -136,12 +136,12 @@ def count_to_number_stmts():
 
 def print_to_number2():
 	"""
-	PRINT-TO-NUMBER(N)
+	PRINT-TO-NUMBER2(N)
 		for x = 0 to N + 1
 			if x % 2 == 0
 				print x
 
-	PRINT-TO-NUMBER(5)
+	PRINT-TO-NUMBER2(5)
 	"""
 	start_expr = test_utils.int_lit_tree("0")
 	end_expr = test_utils.var_tree("N")
@@ -154,11 +154,10 @@ def print_to_number2():
 	if_body = if_tree.getStmtBody()
 	if_body.children.append(print_tree)
 
-
 	for_body = for_tree.getStmtBody()
 	for_body.children.append(if_tree)
 
-	func_tree = test_utils.func_def_tree("PRINT-TO-NUMBER", ["N"])
+	func_tree = test_utils.func_def_tree("PRINT-TO-NUMBER2", ["N"])
 	body_tree = func_tree.getStmtBody()
 	body_tree.children.append(for_tree)
 
@@ -170,7 +169,7 @@ def print_to_number2():
 		])
 	return Tree("PROGRAM", children=[prog_body])
 
-#print print_to_number().toString()
+# print print_to_number().toString()
 def print_to_number_stmts():
 	lines = []
 	lines.append("PRINT-TO-NUMBER(N)")
@@ -180,9 +179,73 @@ def print_to_number_stmts():
 
 def print_to_number2_stmts():
 	lines = []
-	lines.append("PRINT-TO-NUMBER(N)")
+	lines.append("PRINT-TO-NUMBER2(N)")
 	lines.append("\tfor x = 0 to N")
 	lines.append("\t\tif x % 2 == 0")
 	lines.append("\t\t\tprint x")
 	#lines.append("PRINT-TO-NUMBER(5)")
+	return lines
+
+
+# is_even
+def check_is_even():
+	"""
+	IS-EVEN(N)
+		return (N % 2) == 0
+
+	IS-EVEN(4)
+	"""
+	bin_tree = test_utils.bin_op_val_int('N', '%', '2')
+
+	comp_tree = Tree("COMP_EXPR")
+	comp_tree.children.append(Tree("EXPR",children=[bin_tree]))
+	comp_tree.children.append(test_utils.comp_operator_tree('=='))
+	comp_tree.children.append(Tree("EXPR",children=[Tree("Int_Literal", children=[Tree('0')])]))
+	
+	ret_tree = Tree("RETURN")
+	ret_tree.children.append(Tree("Return_Keyword",children=[Tree("return")]))
+	ret_tree.children.append(comp_tree)
+	
+	return Tree("PROGRAM", children=[ret_tree])
+
+def check_is_even_stmts():
+	lines = []
+	lines.append("IS-EVEN(N)")
+	lines.append("\treturn (N % 2) == 0")
+	return lines
+
+
+def print_even_sum():
+	"""
+	PRINT-EVEN-SUM(x,y)
+		z = x + y
+		if z % 2 == 0
+		 	print z
+	"""
+
+	add_tree = test_utils.add_expr("x", "y")
+	assign_tree = test_utils.assign_expr_tree("z", add_tree, indent=1, line=2)
+
+	call_tree = test_utils.call_tree("print", ["z"])
+	print_tree = test_utils.expr_stmt_tree(call_tree, indent=2, line=4)
+
+	if_tree = test_utils.if_binop_tree("z", "%", "2", "==", "0", indent=1, line=3)
+	if_body = if_tree.getStmtBody()
+	if_body.children.append(print_tree)
+
+	func_tree = test_utils.func_def_tree("PRINT-EVEN-SUM", ["x", "y"])
+
+	body_tree = func_tree.getStmtBody()
+	body_tree.children.append(assign_tree)
+	body_tree.children.append(Tree("STMT_LIST", indent=1, line=3, children=[if_tree]))
+
+	prog_body = Tree("STMT_LIST", indent=0, line=0, children=[func_tree])
+	return Tree("PROGRAM", children=[prog_body])
+
+def print_even_sum_stmts():
+	lines = []
+	lines.append("PRINT-EVEN-SUM(x, y)")
+	lines.append("\tz = x + y")
+	lines.append("\tif z % 2 == 0")
+	lines.append("\t\tprint z")
 	return lines

@@ -16,13 +16,27 @@ def test_args2():
 
 def test_args3():
 	trees = [simple_examples.add_two_numbers(), simple_examples.print_to_number()]
-	# trees = [simple_examples.add_two_numbers(), simple_examples.add_two_numbers(), simple_examples.add_two_numbers(), simple_examples.add_two_numbers(), simple_examples.print_to_number()]
 	stmts = simple_examples.add_two_numbers_stmts()
 	return trees, stmts
 
 def test_args4():
 	trees = [simple_examples.add_two_numbers(), simple_examples.print_to_number()]
 	stmts = simple_examples.print_to_number_stmts()
+	return trees, stmts
+
+def test_args5():
+	trees = [simple_examples.add_two_numbers(), simple_examples.print_to_number(), simple_examples.print_to_number2()]
+	stmts = simple_examples.print_to_number_stmts()
+	return trees, stmts
+
+def test_args6():
+	trees = [simple_examples.print_even_sum()]
+	stmts = simple_examples.print_even_sum_stmts()
+	return trees, stmts
+
+def test_args7():
+	trees = [simple_examples.add_two_numbers(), simple_examples.print_to_number(), simple_examples.print_to_number2()]
+	stmts = simple_examples.print_even_sum_stmts()
 	return trees, stmts
 
 def parser_test(train_trees, test_stmts, verbose=False):
@@ -56,7 +70,7 @@ def run_test(test_num, trees, stmts, parse_only, output):
 
 
 parser = argparse.ArgumentParser(description='Run tests for Lollipop Pseudocode Compiler.')
-parser.add_argument('test', nargs='?', type=int, choices=range(0,5), default=0, help="Specify the test number that you'd like to run, or 0 to run all.")
+parser.add_argument('test', nargs='?', type=int, choices=range(0,8), default=0, help="Specify the test number that you'd like to run, or 0 to run all.")
 parser.add_argument('-p', '--parser', help='Run only the parser tests.', action='store_true')
 parser.add_argument('-v', '--verbose', type=int, choices=range(0,4), default=2, help="Set the level of output. 0 - no output, 1 - source code only, 2 - pseudocode and source code, 3 - all intermediate output")
 
@@ -78,4 +92,14 @@ if args.test == 0 or args.test == 4:
 	trees, stmts = test_args4()
 	run_test(4, trees, stmts, args.parser, args.verbose)
 
+if args.test == 0 or args.test == 5:
+	trees, stmts = test_args5()
+	run_test(5, trees, stmts, args.parser, args.verbose)
 
+if args.test == 0 or args.test == 6:
+	trees, stmts = test_args6()
+	run_test(6, trees, stmts, args.parser, args.verbose)
+
+if args.test == 0 or args.test == 7:
+	trees, stmts = test_args7()
+	run_test(7, trees, stmts, args.parser, args.verbose)
