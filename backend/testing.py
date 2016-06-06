@@ -1,47 +1,67 @@
 from pseudo_parser import PseudoParser
 from lollify import *
 from python_codegen import *
-import simple_examples
+from train_examples import *
 import argparse
 
 def test_args1():
-	trees = [simple_examples.add_two_numbers()]
-	stmts = simple_examples.add_two_numbers_stmts()
+	trees = [add_two_numbers()]
+	stmts = add_two_numbers_stmts()
 	return trees, stmts 
 
 def test_args2():
-	trees = [simple_examples.print_to_number()]
-	stmts = simple_examples.print_to_number_stmts()
+	trees = [print_to_number()]
+	stmts = print_to_number_stmts()
 	return trees, stmts
 
 def test_args3():
-	trees = [simple_examples.add_two_numbers(), simple_examples.print_to_number()]
-	stmts = simple_examples.add_two_numbers_stmts()
+	trees = [add_two_numbers(), print_to_number()]
+	stmts = add_two_numbers_stmts()
 	return trees, stmts
 
 def test_args4():
-	trees = [simple_examples.add_two_numbers(), simple_examples.print_to_number()]
-	stmts = simple_examples.print_to_number_stmts()
+	trees = [add_two_numbers(), print_to_number()]
+	stmts = print_to_number_stmts()
 	return trees, stmts
 
 def test_args5():
-	trees = [simple_examples.add_two_numbers(), simple_examples.print_to_number(), simple_examples.print_to_number2()]
-	stmts = simple_examples.print_to_number_stmts()
+	trees = [add_two_numbers(), print_to_number(), print_to_number2()]
+	stmts = print_to_number_stmts()
 	return trees, stmts
 
 def test_args6():
-	trees = [simple_examples.print_even_sum()]
-	stmts = simple_examples.print_even_sum_stmts()
+	trees = [print_even_sum()]
+	stmts = print_even_sum_stmts()
 	return trees, stmts
 
 def test_args7():
-	trees = [simple_examples.add_two_numbers(), simple_examples.print_to_number(), simple_examples.print_to_number2()]
-	stmts = simple_examples.print_even_sum_stmts()
+	trees = [add_two_numbers(), print_to_number(), print_to_number2()]
+	stmts = print_even_sum_stmts()
 	return trees, stmts
 
 def test_args8():
-	trees = [simple_examples.fibonacci()]
-	stmts = simple_examples.fibonacci_stmts()
+	trees = [add_two_numbers(), print_to_number(), print_to_number2()]
+	stmts = print_to_number2_stmts()
+	return trees, stmts
+
+def test_args9():
+	trees = [count_to_number()]
+	stmts = count_to_number_stmts()
+	return trees, stmts
+
+def test_args10():
+	trees = [add_two_numbers(), print_to_number(), print_to_number2(), count_to_number()]
+	stmts = print_even_sum_stmts()
+	return trees, stmts
+
+def test_args11():
+	trees = [if_less(), if_less_equal(), if_greater(), if_greater_equal(), if_equal()]
+	stmts = if_less_stmts()
+	return trees, stmts
+
+def test_args12():
+	trees = [fibonacci()]
+	stmts = fibonacci_stmts()
 	return trees, stmts
 
 def parser_test(train_trees, test_stmts, verbose=False):
@@ -73,7 +93,7 @@ def run_test(test_num, trees, stmts, parse_only, output):
 			print code
 
 parser = argparse.ArgumentParser(description='Run tests for Lollipop Pseudocode Compiler.')
-parser.add_argument('test', nargs='?', type=int, choices=range(0,9), default=0, help="Specify the test number that you'd like to run, or 0 to run all.")
+parser.add_argument('test', nargs='?', type=int, choices=range(0,13), default=0, help="Specify the test number that you'd like to run, or 0 to run all.")
 parser.add_argument('-p', '--parser', help='Run only the parser tests.', action='store_true')
 parser.add_argument('-v', '--verbose', type=int, choices=range(0,4), default=2, help="Set the level of output. 0 - no output, 1 - source code only, 2 - pseudocode and source code, 3 - all intermediate output")
 
@@ -113,3 +133,19 @@ if args.test == 0 or args.test == 7:
 if args.test == 0 or args.test == 8:
 	trees, stmts = test_args8()
 	run_test(8, trees, stmts, args.parser, args.verbose)
+
+if args.test == 0 or args.test == 9:
+	trees, stmts = test_args9()
+	run_test(9, trees, stmts, args.parser, args.verbose)
+
+if args.test == 0 or args.test == 10:
+	trees, stmts = test_args10()
+	run_test(10, trees, stmts, args.parser, args.verbose)
+
+if args.test == 0 or args.test == 11:
+	trees, stmts = test_args11()
+	run_test(11, trees, stmts, args.parser, args.verbose)
+
+if args.test == 0 or args.test == 12:
+	trees, stmts = test_args12()
+	run_test(12, trees, stmts, args.parser, args.verbose)

@@ -22,7 +22,7 @@
 		  		<div class="col-md-6">
 		  			<div class="form-group">
 			  			<label for="pseudocode">Pseudocode:</label>
-			  			<textarea class="form-control" rows="10" name="pseudocode" id="pseudocode">{{pseudocode}}</textarea>
+			  			<textarea class="form-control" rows="10" name="pseudocode" id="pseudocode" onkeydown="if(event.keyCode===9){var v=this.value,s=this.selectionStart,e=this.selectionEnd;this.value=v.substring(0, s)+'\t'+v.substring(e);this.selectionStart=this.selectionEnd=s+1;return false;}">{{pseudocode}}</textarea>
 		  			</div>
 		  			<div class="form-group">
 			  			<label for="language">Select language:</label>

@@ -2,9 +2,23 @@ from tree import Tree
 import test_utils
 import parser_utils
 
+def train_trees():
+	trees = [
+		add_two_numbers(),
+		print_to_number(),
+		print_to_number2(),
+		count_to_number(),
+		if_less(),
+		if_less_equal(),
+		if_greater(),
+		if_greater_equal(),
+		if_equal()
+	]
+	return trees
+
 def add_two_numbers_trees():
 	"""
-	ADD-TWO-NUMBERS(a,b)
+	ADD-TWO-NUMBERS(a, b)
 		c = a + b
 		return c
 	"""
@@ -88,7 +102,7 @@ def add_two_numbers_stmts():
 def print_to_number_trees():
 	"""
 	PRINT-TO-NUMBER(N)
-		for x = 0 to N + 1
+		for x = 0 to N
 			print x
 	"""
 	start_expr = test_utils.int_lit_tree("0")
@@ -110,13 +124,13 @@ def print_to_number_trees():
 
 def count_to_number_trees():
 	"""
-	COUNT-TO-TEN(START)
+	COUNT-TO-TEN(start)
 	    x = start
 	    while x < 10
 	        x += 1
         print x
 	"""
-	assign_tree = test_utils.assign_expr_tree("x", test_utils.var_tree("START"), indent=1, line=2)
+	assign_tree = test_utils.assign_expr_tree("x", test_utils.var_tree("start"), indent=1, line=2)
 	aug_assign_tree = test_utils.aug_assign_tree("x", "1", "+", indent=2, line=4)
 	while_tree = test_utils.while_tree("x", "<", "10", indent=1, line=3)
 
@@ -130,7 +144,7 @@ def count_to_number_trees():
 		while_tree, 
 		Tree("STMT_LIST", indent=1, line=5, children=[print_tree])])
 		
-	func_tree = test_utils.func_def_tree("COUNT-TO-TEN", ["START"])
+	func_tree = test_utils.func_def_tree("COUNT-TO-TEN", ["start"])
 	body_tree = func_tree.getStmtBody()
 	body_tree.children.append(assign_tree)
 	body_tree.children.append(while_stmt_tree)
@@ -140,8 +154,8 @@ def count_to_number_trees():
 
 def count_to_number_stmts():
 	lines = []
-	lines.append("COUNT-TO-TEN(START)")
-	lines.append("\tx = START")
+	lines.append("COUNT-TO-TEN(start)")
+	lines.append("\tx = start")
 	lines.append("\twhile x < 10")
 	lines.append("\t\tx += 1")
 	lines.append("\tprint x")
@@ -150,7 +164,7 @@ def count_to_number_stmts():
 def print_to_number2_trees():
 	"""
 	PRINT-TO-NUMBER2(N)
-		for x = 0 to N + 1
+		for x = 0 to N
 			if x % 2 == 0
 				print x
 
@@ -230,10 +244,10 @@ def check_is_even_stmts():
 
 def print_even_sum_trees():
 	"""
-	PRINT-EVEN-SUM(x,y)
+	PRINT-EVEN-SUM(x, y)
 		z = x + y
 		if z % 2 == 0
-		 	print z
+			print z
 	"""
 
 	add_tree = test_utils.add_expr("x", "y")
@@ -262,3 +276,97 @@ def print_even_sum_stmts():
 	lines.append("\tif z % 2 == 0")
 	lines.append("\t\tprint z")
 	return lines
+
+
+def if_less():
+	ret_n_tree = test_utils.return_tree("n", indent=1, line=3)
+
+	if_tree = test_utils.if_tree("n", "<", "10", indent=1, line=2)
+	if_body = if_tree.getStmtBody()
+	if_body.children.append(ret_n_tree)
+
+	else_ret_tree = test_utils.return_val_tree("0", indent=1, line=3)
+
+	func_tree = test_utils.func_def_tree("IF-LESS-RETURN", ["n"])
+	body_tree = func_tree.getStmtBody()
+	body_tree.children.append(if_tree)
+	body_tree.children.append(Tree("STMT_LIST", indent=1, line=3, children=[else_ret_tree]))
+
+	prog_body = Tree("STMT_LIST", indent=0, line=0, children=[func_tree])
+	return Tree("PROGRAM", children=[prog_body])
+
+def if_less_stmts():
+	lines = []
+	lines.append("IF-LESS-RETURN(n)")
+	lines.append("\tif n < 10")
+	lines.append("\t\treturn n")
+	lines.append("\treturn 0")
+	return lines
+
+def if_less_equal():
+	ret_n_tree = test_utils.return_tree("n", indent=1, line=3)
+
+	if_tree = test_utils.if_tree("n", "<=", "10", indent=1, line=2)
+	if_body = if_tree.getStmtBody()
+	if_body.children.append(ret_n_tree)
+
+	else_ret_tree = test_utils.return_val_tree("0", indent=1, line=3)
+
+	func_tree = test_utils.func_def_tree("IF-LEQ-RETURN", ["n"])
+	body_tree = func_tree.getStmtBody()
+	body_tree.children.append(if_tree)
+	body_tree.children.append(Tree("STMT_LIST", indent=1, line=3, children=[else_ret_tree]))
+
+	prog_body = Tree("STMT_LIST", indent=0, line=0, children=[func_tree])
+	return Tree("PROGRAM", children=[prog_body])
+
+def if_greater():
+	ret_n_tree = test_utils.return_tree("n", indent=1, line=3)
+
+	if_tree = test_utils.if_tree("n", ">", "10", indent=1, line=2)
+	if_body = if_tree.getStmtBody()
+	if_body.children.append(ret_n_tree)
+
+	else_ret_tree = test_utils.return_val_tree("0", indent=1, line=3)
+
+	func_tree = test_utils.func_def_tree("IF-GREATER-RETURN", ["n"])
+	body_tree = func_tree.getStmtBody()
+	body_tree.children.append(if_tree)
+	body_tree.children.append(Tree("STMT_LIST", indent=1, line=3, children=[else_ret_tree]))
+
+	prog_body = Tree("STMT_LIST", indent=0, line=0, children=[func_tree])
+	return Tree("PROGRAM", children=[prog_body])
+
+def if_greater_equal():
+	ret_n_tree = test_utils.return_tree("n", indent=1, line=3)
+
+	if_tree = test_utils.if_tree("n", ">=", "10", indent=1, line=2)
+	if_body = if_tree.getStmtBody()
+	if_body.children.append(ret_n_tree)
+
+	else_ret_tree = test_utils.return_val_tree("0", indent=1, line=3)
+
+	func_tree = test_utils.func_def_tree("IF-GEQ-RETURN", ["n"])
+	body_tree = func_tree.getStmtBody()
+	body_tree.children.append(if_tree)
+	body_tree.children.append(Tree("STMT_LIST", indent=1, line=3, children=[else_ret_tree]))
+
+	prog_body = Tree("STMT_LIST", indent=0, line=0, children=[func_tree])
+	return Tree("PROGRAM", children=[prog_body])
+
+def if_equal():
+	ret_n_tree = test_utils.return_tree("n", indent=1, line=3)
+
+	if_tree = test_utils.if_tree("n", "==", "10", indent=1, line=2)
+	if_body = if_tree.getStmtBody()
+	if_body.children.append(ret_n_tree)
+
+	else_ret_tree = test_utils.return_val_tree("0", indent=1, line=3)
+
+	func_tree = test_utils.func_def_tree("IF-EQ-RETURN", ["n"])
+	body_tree = func_tree.getStmtBody()
+	body_tree.children.append(if_tree)
+	body_tree.children.append(Tree("STMT_LIST", indent=1, line=3, children=[else_ret_tree]))
+
+	prog_body = Tree("STMT_LIST", indent=0, line=0, children=[func_tree])
+	return Tree("PROGRAM", children=[prog_body])
