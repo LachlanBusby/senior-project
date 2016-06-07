@@ -74,6 +74,10 @@ def test_args14():
 	stmts = ["ERROR-TEST(x)", "\tif nonsense", "\t\treturn x", "\treturn 0"]
 	return trees, stmts
 
+def test_args15():
+	trees = [print_to_number_trees()]
+	stmts = if_less_stmts()
+	return trees, stmts
 
 def parser_test(train_trees, test_stmts, verbose=False):
 	parser = PseudoParser.train(trees=train_trees)
@@ -104,7 +108,7 @@ def run_test(test_num, trees, stmts, parse_only, output):
 			print code
 
 parser = argparse.ArgumentParser(description='Run tests for Lollipop Pseudocode Compiler.')
-parser.add_argument('test', nargs='?', type=int, choices=range(0,15), default=0, help="Specify the test number that you'd like to run, or 0 to run all.")
+parser.add_argument('test', nargs='?', type=int, choices=range(0,16), default=0, help="Specify the test number that you'd like to run, or 0 to run all.")
 parser.add_argument('-p', '--parser', help='Run only the parser tests.', action='store_true')
 parser.add_argument('-v', '--verbose', type=int, choices=range(0,4), default=2, help="Set the level of output. 0 - no output, 1 - source code only, 2 - pseudocode and source code, 3 - all intermediate output")
 parser.add_argument('-t', '--train-all', action='store_true', default=False, help="Train parser on all examples")
@@ -194,3 +198,7 @@ if args.test == 0 or args.test == 13:
 if args.test == 0 or args.test == 14:
 	trees, stmts = test_args14()
 	run_test(14, trees, stmts, args.parser, args.verbose)
+
+if args.test == 0 or args.test == 15:
+	trees, stmts = test_args15()
+	run_test(15, trees, stmts, args.parser, args.verbose)
