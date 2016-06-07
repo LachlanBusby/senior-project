@@ -1,3 +1,4 @@
+from tree import Tree
 import nltk
 import parser_utils
 from nltk.grammar import Nonterminal
@@ -7,11 +8,12 @@ class StmtParser(nltk.ViterbiParser):
 		super(StmtParser, self).__init__(grammar, trace)
 
 	
-	def parse(self, tokens):
+	def parse(self, tokens, stmt):
 		""" generates parse tree for tokens, assumes literals have already been substituted """
 		try:
 			it = super(StmtParser, self).parse(tokens)
 			for tree in it:
 				return parser_utils.convert_nltk_tree(tree)
 		except ValueError:
-			return None
+			return Tree("ERROR", children=[Tree("Error_Line", children=[Tree(stmt.strip())])])
+

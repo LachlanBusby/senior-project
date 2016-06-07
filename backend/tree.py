@@ -92,6 +92,9 @@ class Tree:
             return True
         return False
 
+    def isError(self):
+        return self.label == "ERROR"
+
     def getStmtType(self):
         """ if node is a statement node, returns the label for the child node """
         if not self.isStmt():
