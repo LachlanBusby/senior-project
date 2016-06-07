@@ -15,5 +15,6 @@ class StmtParser(nltk.ViterbiParser):
 			for tree in it:
 				return parser_utils.convert_nltk_tree(tree)
 		except ValueError:
-			return Tree("ERROR", children=[Tree("Error_Line", children=[Tree(stmt.strip())])])
+			error_str = stmt.strip() + "\t# ERROR: Unable to parse this line."
+			return Tree("ERROR", children=[Tree("Error_Line", children=[Tree(error_str)])])
 

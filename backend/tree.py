@@ -314,7 +314,7 @@ class Tree:
     def toStringHelper(self, nindent):
         string = ""
         if nindent > 0:
-            string += str(nindent) + ("---" if nindent < 10 else "--") + "".join(['----']*(nindent - 1))
+            string += "".join(['----']*nindent)
         
         if self.isLeaf():
             string += "(\'" + self.label + "\')"
