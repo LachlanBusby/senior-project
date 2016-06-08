@@ -71,8 +71,23 @@ def lollify_root(root):
 	"""
 	return lollify(root)
 
+@register("Error_Line")
+def lollify_error(node):
+	return node.children[0].label
+
+@register("ERROR")
+def lollify_error(node):
+	children = get_child_dict(node)
+	stmt = Statement(lollify(children["Error_Line"]))
+	if children.get("STMT_LIST") is not None:
+		stmt.body = lollify(children["STMT_LIST"])
+	return stmt
+
 @register("STMT")
 def lollify_stmt(node):
+	children = get_child_dict(node)
+	if children.get("ERROR") is not None:
+		return lollify(children["ERROR"])
 	return lollify(node.children[0])
 
 @register("EXPR")

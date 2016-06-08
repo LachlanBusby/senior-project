@@ -126,7 +126,10 @@ class Expression(AST):
 
 class Statement(AST):
 	""" Base class for all statement nodes """
-	pass
+	@accepts(AST, str)
+	def __init__(self, comment=""):
+		self.comment = comment
+		self.body = None
 
 class Operator(AST):
 	""" Base Operator class. Do not instantiate """
@@ -198,8 +201,8 @@ class Arguments(NodeSequence):
 # 
 class FunctionDef(Statement):
 	""" Node for Function Definition statements """
-	@accepts(Statement, Name, Arguments, Statements)
-	def __init__(self, name, arguments, body):
+	@accepts(Statement, Name, Arguments, Statements, str)
+	def __init__(self, name, arguments, body, comment=""):
 		self.name = name
 		self.args = arguments
 		self.body = body

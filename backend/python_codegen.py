@@ -22,7 +22,7 @@ dispatch = collections.defaultdict(lambda x, y: pycode_notimplemented(x, y))
 def code(node, indent):
 	s = dispatch.get(type(node))(node, indent)
 	#print s
-	#print "Coding %s, %s: " %(type(node), node)
+#	print "Coding %s, %s: " %(type(node), node)
 	return s
 
 def emit_pycode(root, filename):
@@ -44,6 +44,13 @@ def pycode_stmtlist(self, indent):
 def pycode_program(self, indent):
 	pystr = code(self.statements, indent)
 	return pystr
+
+@register(Statement)
+def pycode_stmt(self, indent):
+	s = self.comment + "\n"
+	if self.body is not None:
+		s += code(self.body, indent + 1)
+	return s
 
 
 @register(FunctionDef)
